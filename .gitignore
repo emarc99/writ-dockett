@@ -22,3 +22,6 @@ research/
 .DS_Store
 Thumbs.db
 .vscode/
+
+# CRE CLI build artifacts
+.cre_build_tmp.js
