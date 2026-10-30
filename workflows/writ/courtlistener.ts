@@ -61,21 +61,33 @@ interface RawEntry {
 
 const CACHE = { store: true, maxAge: '300s' }
 
+/** One retry on timeout or 5xx; 4xx (bad token, throttled) fails immediately. */
 function get(sendRequester: HTTPSendRequester, url: string, token: string): unknown {
-	const resp = sendRequester
-		.sendRequest({
-			url,
-			method: 'GET',
-			timeout: '10s',
-			cacheSettings: CACHE,
-			multiHeaders: {
-				Authorization: { values: [`Token ${token}`] },
-				Accept: { values: ['application/json'] },
-			},
-		})
-		.result()
-	if (!ok(resp)) throw new Error(`CourtListener HTTP ${resp.statusCode} for ${url}`)
-	return JSON.parse(text(resp))
+	let lastError = ''
+	for (let attempt = 0; attempt < 2; attempt++) {
+		let resp
+		try {
+			resp = sendRequester
+				.sendRequest({
+					url,
+					method: 'GET',
+					timeout: '10s',
+					cacheSettings: CACHE,
+					multiHeaders: {
+						Authorization: { values: [`Token ${token}`] },
+						Accept: { values: ['application/json'] },
+					},
+				})
+				.result()
+		} catch (e) {
+			lastError = String(e)
+			continue
+		}
+		if (ok(resp)) return JSON.parse(text(resp))
+		lastError = `HTTP ${resp.statusCode}`
+		if (resp.statusCode < 500) break
+	}
+	throw new Error(`CourtListener ${lastError} for ${url}`)
 }
 
 function mainDocument(entry: RawEntry): RecapDocument | undefined {
