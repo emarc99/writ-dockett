@@ -104,6 +104,44 @@ Deployed contracts (Sepolia, `deployments/sepolia.json`):
 - `WritToken` (Writ USD, wUSD): [`0x4d0DF1DF351d3035A9AEa82cc34Fc4d4C5e30e5f`](https://sepolia.etherscan.io/address/0x4d0DF1DF351d3035A9AEa82cc34Fc4d4C5e30e5f)
 - CRE forwarder (simulation `MockKeystoneForwarder`): [`0x15fC6ae953E024d975e77382eEeC56A9101f9F88`](https://sepolia.etherscan.io/address/0x15fC6ae953E024d975e77382eEeC56A9101f9F88)
 
+## CRE simulation trace: external request, chain read, signed result
+
+From [`logs/trace-verify-forged.log`](logs/trace-verify-forged.log), a `--broadcast` run of the HTTP trigger:
+
+```text
+[identity] trigger signer: none (local simulation; set httpAuthorizedKey when deployed)
+[chain]    OrderRegistry.getOrder(0xfef489dd…) at finalized block: status=Active          <- blockchain read (EVMClient.callContract)
+[check]    PASS docket exists: Newton AC/DC Fund, L.P. v. Ermilov (CourtListener #73408471)  <- external request (CourtListener)
+[check]    PASS entry exists: ECF 18 filed 2026-06-05                                       <- external request (CourtListener)
+[check]    FAIL document hash: court PDF sha1=0xec485c6c… submitted=0xa40c1679…
+[gemini]   type=TRO withoutNotice=false untilFurtherOrder=true expiry="" days=0 wallets=6   <- external request (Gemini)
+[check]    FAIL claimed wallets are in the order: not in order: 0x4c1f0b2d…
+[report]   DON-signed report (ecdsa, keccak256) over 544 bytes -> writeReport to 0xC0efC2d0… <- signed result
+[verify]   REJECTED submission 0x65bdf2f4…: HashMismatch, WalletNotInOrder tx=0xa5ba48c8…
+```
+
+Signed-result tx: [`0xa5ba48c8…`](https://sepolia.etherscan.io/tx/0xa5ba48c83afd2742240bfd3ca071eaf840f6ec3a5516ac15da3f09376abb2b70). The cron trigger produces the same three parts in [`logs/sweep-dissolve.log`](logs/sweep-dissolve.log): registry reads, then CourtListener and Gemini, then a signed `UpdateStatus` report.
+
+### How identity signals reach the workflow
+
+| Identity | How it enters | Where it is checked |
+| --- | --- | --- |
+| **Who may submit** (the issuer's compliance desk) | The HTTP trigger request is signed by an EVM key. `httpAuthorizedKey` in the config becomes the trigger's `authorizedKeys`, so the DON drops unsigned or foreign requests. The signer arrives as `payload.key` and is logged. | CRE gateway / trigger, before any code runs |
+| **Which court document** | The payload carries `court`, `docketNumber`, `entryNumber` and the PDF's SHA-1. The PDF itself never leaves the browser. | `verify.ts` checks each against CourtListener; order id = `keccak256(abi.encode(court, docketNumber, entry))` |
+| **Which wallets** | A claimed list in the payload | Each wallet must appear verbatim in the court's official text **and** be named by Gemini as restrained |
+| **API credentials** | `COURTLISTENER_TOKEN` and `GEMINI_API_KEY` are CRE secrets (`secrets.yaml`; `.env` in simulation, the Vault DON when deployed), fetched with `runtime.getSecret` inside handlers | Never in config, payloads, logs or reports |
+| **Which workflow may write on-chain** | Reports are signed by the DON and delivered through the Keystone forwarder, with workflow id and owner in the report metadata | `CREReceiver.onReport`: `msg.sender == forwarder`, plus `pinWorkflow(owner, workflowId)` in production |
+
+## Responsible AI and ethics
+
+- **The model reads; it does not decide.** Gemini extracts terms from the court's own text. Code decides who is frozen and until when: wallets must appear verbatim in the official text, the PDF must hash-match the court's copy, dates come from the docket, and the Rule 65 arithmetic is in tested code. A hallucinated wallet cannot be frozen, because it does not appear in the text.
+- **Fail-safe defaults.** If anything is missing (no docket, no RECAP copy, unreadable OCR, no wallets), the submission is rejected with machine-readable reasons, never partially applied. The model's ex parte call is overridden by the clerk's docket text when the order is stipulated or consented.
+- **Freezes end on time.** Expiry is enforced at read time, so a lapsed ex parte TRO stops freezing even if no one sends a transaction, and the sweep lifts freezes when the court lifts the order. Over-long freezes are an ethical harm too: they deprive people of property without a court's authority.
+- **Prompt-injection resistant.** Order text is passed as delimited untrusted data with a fixed JSON response schema at temperature 0, and outputs are normalized and cross-checked before use.
+- **Privacy.** Only a hash of the uploaded PDF is sent. All evidence used is public court records, and on-chain records contain the docket reference, hashes and wallets only, no personal names.
+- **Human in the loop.** The issuer's compliance owner can correct any status (`overrideStatus`) for sealed orders, appeals or errors. Every override emits a `HumanOverride` event with a note, and every automated change cites the docket entry and PDF hash that justified it, so the full history is auditable on-chain.
+- **Scope.** U.S. federal dockets on CourtListener only; not legal advice.
+
 ## Files that use Chainlink
 
 | File | Role |
