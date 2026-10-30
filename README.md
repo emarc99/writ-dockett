@@ -98,11 +98,49 @@ Case: *Newton AC/DC Fund, L.P. v. Ermilov*, No. 5:26-cv-05055-PCP (N.D. Cal.), [
 
 While the order was active, a wUSD transfer from a named wallet reverted with `WalletFrozen(0xe4972…)`. After the sweep, the same call succeeds. Full CLI output is in [`logs/`](logs/).
 
+These three runs used `cre workflow simulate --broadcast` (reports delivered through the simulation `MockKeystoneForwarder`). The workflow has since been deployed to a Chainlink DON, below.
+
 Deployed contracts (Sepolia, `deployments/sepolia.json`):
 
 - `OrderRegistry`: [`0xC0efC2d0B41Bbcb9d26C7F4F32678a247E15a202`](https://sepolia.etherscan.io/address/0xC0efC2d0B41Bbcb9d26C7F4F32678a247E15a202)
 - `WritToken` (Writ USD, wUSD): [`0x4d0DF1DF351d3035A9AEa82cc34Fc4d4C5e30e5f`](https://sepolia.etherscan.io/address/0x4d0DF1DF351d3035A9AEa82cc34Fc4d4C5e30e5f)
-- CRE forwarder (simulation `MockKeystoneForwarder`): [`0x15fC6ae953E024d975e77382eEeC56A9101f9F88`](https://sepolia.etherscan.io/address/0x15fC6ae953E024d975e77382eEeC56A9101f9F88)
+- CRE forwarder: Sepolia `KeystoneForwarder` [`0xF8344CFd5c43616a4366C34E3EEE75af79a74482`](https://sepolia.etherscan.io/address/0xF8344CFd5c43616a4366C34E3EEE75af79a74482) (was the simulation `MockKeystoneForwarder` `0x15fC6a…9F88` for the runs above)
+
+## Deployed on Chainlink CRE
+
+| | |
+| --- | --- |
+| Workflow | `writ-staging` (CRE private registry, DON `zone-a`) |
+| Workflow ID | `0003deda6ecfece148ff7945bb31e211c619562c9c5527ccbf72e67b7478e7f3` |
+| Workflow owner | `0x1F16F1d733D365B1a1E43B104BA67Ec763028627` |
+| HTTP trigger authorized key | `0xb8AD2787f447e04E8D66D7e888Dd48fB68DdedB7` |
+| Cron | `0 0 */6 * * *` (every 6 hours, UTC) |
+| Registry switched to `KeystoneForwarder` | [`0x9a8d6013…`](https://sepolia.etherscan.io/tx/0x9a8d60136a41a710f70b41a02ed4b6511b3f440dd9ae0800ad30ca1c33a8e056) |
+| Registry pinned to this workflow (`pinWorkflow(owner, id)`) | [`0x023ad6ed…`](https://sepolia.etherscan.io/tx/0x023ad6ed2aea5bbbd1f41236f148b126002674a278e561ef7f160ae39f985670) |
+
+`OrderRegistry` now accepts reports only from the `KeystoneForwarder`, and only if the report metadata carries this workflow ID and owner. The forged order was re-submitted to the deployed workflow through the CRE gateway with a signed request ([`web/gateway.ts`](web/gateway.ts)):
+
+```text
+$ bun web/gateway.ts payloads/forged.json
+{ "executionId": "0xa03c402f9c8a86d7b46cbcfdca7c132ed317d4fa0b4e2a0c8ebc896d84370fc8", "status": "ACCEPTED" }
+
+$ cre execution logs a03c402f…  (10 DON nodes; Node 1 shown)
+[identity] trigger signer: 0xb8ad2787f447e04e8d66d7e888dd48fb68ddedb7                          <- authorized key, checked by the gateway
+[chain]    OrderRegistry.getOrder(0xfef489dd…) at finalized block: status=Dissolved          <- blockchain read
+[check]    PASS docket exists: Newton AC/DC Fund, L.P. v. Ermilov (CourtListener #73408471)  <- external request
+[check]    FAIL document hash: court PDF sha1=0xec485c6c… submitted=0xa40c1679…
+[gemini]   type=TRO withoutNotice=false untilFurtherOrder=true expiry="" days=0 wallets=6   <- external request
+[check]    FAIL claimed wallets are in the order: not in order: 0x4c1f0b2d…
+[report]   DON-signed report (ecdsa, keccak256) over 544 bytes -> writeReport to 0xC0efC2d0… <- signed result
+[verify]   REJECTED submission 0x65bdf2f4…: HashMismatch, WalletNotInOrder tx=0xbb5a73da…
+
+$ cre execution events a03c402f…
+trigger · evm CallContract · http-actions SendRequest x4 · consensus Simple x3 · consensus Report · evm WriteReport   (all success, 33 s)
+```
+
+Signed-result tx [`0xbb5a73da…`](https://sepolia.etherscan.io/tx/0xbb5a73dac84c6705e4ef14521e16959dfe81e409f728809ba3d93445a66f5217): sent by a DON transmitter to the `KeystoneForwarder`, which called `OrderRegistry.onReport` (`OrderRejected` and `ReportProcessed` events). Full output: [`logs/deployed-verify-forged.log`](logs/deployed-verify-forged.log). The cron handler also runs on the DON. At 18:00 UTC on 30 Oct it read the registry and found no active orders, since the demo order had already been dissolved.
+
+![Demo UI driving the deployed workflow](docs/img/ui-deployed-reject.png)
 
 ## CRE simulation trace: external request, chain read, signed result
 
@@ -130,7 +168,7 @@ Signed-result tx: [`0xa5ba48c8…`](https://sepolia.etherscan.io/tx/0xa5ba48c83a
 | **Which court document** | The payload carries `court`, `docketNumber`, `entryNumber` and the PDF's SHA-1. The PDF itself never leaves the browser. | `verify.ts` checks each against CourtListener; order id = `keccak256(abi.encode(court, docketNumber, entry))` |
 | **Which wallets** | A claimed list in the payload | Each wallet must appear verbatim in the court's official text **and** be named by Gemini as restrained |
 | **API credentials** | `COURTLISTENER_TOKEN` and `GEMINI_API_KEY` are CRE secrets (`secrets.yaml`; `.env` in simulation, the Vault DON when deployed), fetched with `runtime.getSecret` inside handlers | Never in config, payloads, logs or reports |
-| **Which workflow may write on-chain** | Reports are signed by the DON and delivered through the Keystone forwarder, with workflow id and owner in the report metadata | `CREReceiver.onReport`: `msg.sender == forwarder`, plus `pinWorkflow(owner, workflowId)` in production |
+| **Which workflow may write on-chain** | Reports are signed by the DON and delivered through the Keystone forwarder, with workflow id and owner in the report metadata | `CREReceiver.onReport`: `msg.sender == forwarder` and, on the deployed registry, `pinWorkflow(owner, workflowId)` |
 
 ## Responsible AI and ethics
 
@@ -159,16 +197,17 @@ Signed-result tx: [`0xa5ba48c8…`](https://sepolia.etherscan.io/tx/0xa5ba48c83a
 | [`contracts/src/interfaces/CREReceiver.sol`](contracts/src/interfaces/CREReceiver.sol) | `IReceiver.onReport`: forwarder-only, optional workflow id/owner pinning |
 | [`contracts/src/interfaces/IReceiver.sol`](contracts/src/interfaces/IReceiver.sol) | Chainlink receiver interface |
 | [`contracts/src/OrderRegistry.sol`](contracts/src/OrderRegistry.sol) | Decodes `Attest` / `Reject` / `UpdateStatus` reports; freeze and expiry logic |
-| [`web/server.ts`](web/server.ts) | Demo bridge that fires the workflow's triggers with `cre workflow simulate --broadcast` |
+| [`web/gateway.ts`](web/gateway.ts) | Fires the deployed HTTP trigger through the CRE gateway with an ETH-signed JWT (`workflows.execute`) |
+| [`web/server.ts`](web/server.ts) | Demo bridge: verify goes to the deployed workflow and follows it with `cre execution`; sweep runs `cre workflow simulate` (dry run) |
 
 Other files: `legal.ts` (deterministic Rule 65 logic, no Chainlink calls), `contracts/src/WritToken.sol` (an ERC-20 that consults the registry), the tests, and `scripts/`.
 
 ## Why CRE
 
 - **No single party is trusted with the docket.** Every DON node fetches CourtListener and Gemini, and the result goes on-chain only if the nodes reach identical consensus. Cached responses keep this within CourtListener's rate limit and make LLM output reproducible across nodes.
-- **Signed delivery.** Reports are DON-signed and delivered through the `KeystoneForwarder`. `OrderRegistry` accepts nothing else, and in production it can be pinned to this workflow's id and owner (`pinWorkflow`).
+- **Signed delivery.** Reports are DON-signed and delivered through the `KeystoneForwarder`. `OrderRegistry` accepts nothing else, and the deployed registry is pinned to this workflow's ID and owner (`pinWorkflow`).
 - **Time is a first-class input.** The cron trigger lifts freezes when the law says they end, and `runtime.now()` gives every node the same clock for the expiry checks.
-- **Secrets stay out of the chain.** The CourtListener token and Gemini key live in CRE secrets (`.env` for simulation).
+- **Secrets stay out of the chain.** The CourtListener token and Gemini key live in CRE secrets (the Vault DON when deployed, `.env` for simulation).
 
 ## Run it
 
@@ -192,19 +231,30 @@ cre workflow simulate workflows/writ --target staging-settings --non-interactive
 
 The sweep reads the registry at the last **finalized** block, so run it about 15 minutes after a verification lands.
 
-Demo UI (local only; it runs the same `cre` commands and streams their output):
+The simulation commands above broadcast through the `MockKeystoneForwarder`, so they only write to a registry that still uses it. Run `./scripts/deploy.ps1` to get a fresh one, because the registry above is now bound to the deployed workflow.
+
+Deploy and trigger on a DON (the CRE private registry is managed with your `cre login` session):
+
+```powershell
+cre secrets create secrets.yaml --target staging-settings    # COURTLISTENER_TOKEN, GEMINI_API_KEY into the Vault DON
+cre workflow deploy workflows/writ --target staging-settings # prints the workflow ID
+# on OrderRegistry (owner): setForwarder(0xF8344CFd5c43616a4366C34E3EEE75af79a74482), pinWorkflow(owner, workflowId)
+# put the ID in deployments/sepolia.json, then:
+bun web/gateway.ts payloads/forged.json                      # signs with CRE_ETH_PRIVATE_KEY (= httpAuthorizedKey)
+cre execution list writ-staging; cre execution logs <execution id without 0x>
+```
+
+Demo UI (local only):
 
 ```powershell
 cd web; bun install; bun server.ts    # http://localhost:8787
 ```
 
-Use **Load genuine ECF 18** or **Load forged ECF 18**, then **Verify with Chainlink CRE**. Watch the checklist fill in, try a transfer from a frozen wallet, and run the sweep.
+Use **Load genuine ECF 18** or **Load forged ECF 18**, then **Verify with Chainlink CRE**. When `deployments/sepolia.json` has a `workflowId`, the server sends the submission to the deployed workflow and streams one DON node's logs into the checklist. Without one, it falls back to `cre workflow simulate --broadcast`. You can also try a transfer from a frozen wallet and run the sweep.
 
 ### Going to production
 
-- Deploy `OrderRegistry` with the Sepolia `KeystoneForwarder` (`0xF8344CFd5c43616a4366C34E3EEE75af79a74482`), or call `setForwarder`.
-- After `cre workflow deploy`, call `pinWorkflow(owner, workflowId)` so only this workflow can write.
-- Set `httpAuthorizedKey` in the workflow config so only the issuer's signing key can fire the HTTP trigger.
+Done for the Sepolia demo: the registry uses the `KeystoneForwarder`, is pinned to the workflow's ID and owner, and the HTTP trigger only accepts the issuer's key. Every redeploy changes the workflow ID, so re-run `pinWorkflow` after one. For mainnet, use the issuer's own key in place of the demo deployer key, add a multisig as registry owner, and send `overrideStatus` through it.
 
 ## Limits and honest caveats
 
@@ -222,7 +272,7 @@ workflows/writ/     CRE workflow (TypeScript): verify + sweep handlers, legal ru
 payloads/           HTTP trigger payloads for the demo (genuine, forged)
 fixtures/           Real court PDFs and OCR text from CourtListener, plus the forged copy
 web/                Local demo UI (Bun server + viem)
-logs/               CLI output of the Sepolia broadcasts above
+logs/               CLI output of the Sepolia simulations and the deployed DON execution
 scripts/            deploy.ps1, make_forged_order.py
 deployments/        Deployed addresses
 ```
