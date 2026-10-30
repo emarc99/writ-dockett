@@ -1,0 +1,15 @@
+{
+  "court": "cand",
+  "docketNumber": "5:26-cv-05055",
+  "entryNumber": 18,
+  "documentSha1": "ec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd",
+  "filedDate": "2026-06-05",
+  "wallets": [
+    "0xf7Fcc767dE537953b3519D4b3097a24A6dFE1c84",
+    "0x898137400867603E6D713CBD40881dd0c79E47cB",
+    "0xf02d9f19060eE2dd50047dC6E1E9eBAC9bA436FE",
+    "0x784Cf4b62655486B405Eb76731885CC9ed56f42f",
+    "0xe497285e466227F4E8648209E34B465dAA1F90a0",
+    "0x9030D5C596d636eEFC8f0ad7b2788AE7E9ef3D46"
+  ]
+}
