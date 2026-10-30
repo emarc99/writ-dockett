@@ -1,0 +1,146 @@
+﻿# Full Writ lifecycle on the deployed CRE workflow (writ-staging, workflow 00165403a8a9bccfcb0e16bfe1bff207e3282d8b852a87cb2fda4e6c449de852)
+# Registry 0x8571a085658dD50BE042a22cDE79963ce3b41d6e, reports via KeystoneForwarder 0xF8344CFd5c43616a4366C34E3EEE75af79a74482
+# Each run: `cre execution logs <id>` filtered to one of the 10 DON nodes (all nodes logged the same lines), then `cre execution events <id>`
+
+## Verify genuine ECF 18 (HTTP trigger)
+## execution e318a6700c48e51ca208672ce9266e3d4f4becf0a407752f9588b3b706bbdcab (Node 9 shown)
+[2026-10-30 18:24:58 UTC] [Node 9] [verify] cand|5:26-cv-05055 ECF 18 sha1=0xec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd claimed=6 wallet(s)
+[2026-10-30 18:24:58 UTC] [Node 9] [identity] trigger signer: 0xb8ad2787f447e04e8d66d7e888dd48fb68ddedb7
+[2026-10-30 18:25:00 UTC] [Node 9] [chain] OrderRegistry.getOrder(0xfef489dd27a7f151ec7c5387f06c07a251744e8de0407b176543865b39505741) at finalized block: status=None
+[2026-10-30 18:25:05 UTC] [Node 9] [check] PASS docket exists: Newton AC/DC Fund, L.P. v. Ermilov (CourtListener #73408471)
+[2026-10-30 18:25:09 UTC] [Node 9] [check] PASS entry exists: ECF 18 filed 2026-06-05
+[2026-10-30 18:25:09 UTC] [Node 9] [check] PASS is a court order: STIPULATED CONSENT TEMPORARY RESTRAINING ORDER, AS MODIFIED. Signed by Judge P. Casey Pitts.(lrt, COURT STAFF) (Filed on
+[2026-10-30 18:25:09 UTC] [Node 9] [check] PASS document hash: court PDF sha1=0xec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd submitted=0xec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd
+[2026-10-30 18:25:09 UTC] [Node 9] [check] PASS filing date: docket=2026-06-05 submitted=2026-06-05
+[2026-10-30 18:25:19 UTC] [Node 9] [gemini] type=TRO withoutNotice=false untilFurtherOrder=true expiry="" days=0 wallets=6
+[2026-10-30 18:25:19 UTC] [Node 9] [legal] TRO with notice/consent -> expiresAt=until further order
+[2026-10-30 18:25:19 UTC] [Node 9] [check] PASS order names wallets: 6 restrained wallet(s) found in the official text
+[2026-10-30 18:25:19 UTC] [Node 9] [check] PASS claimed wallets are in the order: all 6 found
+[2026-10-30 18:25:21 UTC] [Node 9] [report] DON-signed report (ecdsa, keccak256) over 736 bytes -> writeReport to 0x8571a085658dD50BE042a22cDE79963ce3b41d6e
+[2026-10-30 18:25:26 UTC] [Node 9] [verify] VERIFIED 0xfef489dd27a7f151ec7c5387f06c07a251744e8de0407b176543865b39505741: froze 6 wallet(s) tx=0xe294728bb5c4b28967391d5944f8f109e5453575a5535af01639e7bb1432d0ae
+
+## events
+1. trigger
+Method:    -
+Status:    success
+2. http-actions@1.0.0-alpha
+Method:    SendRequest
+Status:    success
+3. http-actions@1.0.0-alpha
+Method:    SendRequest
+Status:    success
+4. http-actions@1.0.0-alpha
+Method:    SendRequest
+Status:    success
+5. evm:ChainSelector:16015286601757825753@1.0.0
+Method:    CallContract
+Status:    success
+6. consensus@1.0.0-alpha
+Method:    Simple
+Status:    success
+7. consensus@1.0.0-alpha
+Method:    Simple
+Status:    success
+8. consensus@1.0.0-alpha
+Method:    Simple
+Status:    success
+9. consensus@1.0.0-alpha
+Method:    Report
+Status:    success
+10. evm:ChainSelector:16015286601757825753@1.0.0
+Method:    WriteReport
+Status:    success
+
+## Verify forged ECF 18 (HTTP trigger)
+## execution bfc564fb8f6eb0bd59119710e6f7354642b3b9eacdcd814995ceb20533848eff (Node 1 shown)
+[2026-10-30 18:26:16 UTC] [Node 1] [verify] cand|5:26-cv-05055 ECF 18 sha1=0xa40c167938d56e15f8959675bb5c7e46dda1bdea claimed=6 wallet(s)
+[2026-10-30 18:26:16 UTC] [Node 1] [identity] trigger signer: 0xb8ad2787f447e04e8d66d7e888dd48fb68ddedb7
+[2026-10-30 18:26:18 UTC] [Node 1] [chain] OrderRegistry.getOrder(0xfef489dd27a7f151ec7c5387f06c07a251744e8de0407b176543865b39505741) at finalized block: status=Active
+[2026-10-30 18:26:22 UTC] [Node 1] [check] PASS docket exists: Newton AC/DC Fund, L.P. v. Ermilov (CourtListener #73408471)
+[2026-10-30 18:26:24 UTC] [Node 1] [check] PASS entry exists: ECF 18 filed 2026-06-05
+[2026-10-30 18:26:24 UTC] [Node 1] [check] PASS is a court order: STIPULATED CONSENT TEMPORARY RESTRAINING ORDER, AS MODIFIED. Signed by Judge P. Casey Pitts.(lrt, COURT STAFF) (Filed on
+[2026-10-30 18:26:24 UTC] [Node 1] [check] FAIL document hash: court PDF sha1=0xec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd submitted=0xa40c167938d56e15f8959675bb5c7e46dda1bdea
+[2026-10-30 18:26:24 UTC] [Node 1] [check] PASS filing date: docket=2026-06-05 submitted=2026-06-05
+[2026-10-30 18:26:28 UTC] [Node 1] [gemini] type=TRO withoutNotice=false untilFurtherOrder=true expiry="" days=0 wallets=6
+[2026-10-30 18:26:28 UTC] [Node 1] [legal] TRO with notice/consent -> expiresAt=until further order
+[2026-10-30 18:26:28 UTC] [Node 1] [check] PASS order names wallets: 6 restrained wallet(s) found in the official text
+[2026-10-30 18:26:28 UTC] [Node 1] [check] FAIL claimed wallets are in the order: not in order: 0x4c1f0b2d9e8a7f6c3b5a49d8e7f60a1b2c3d4e5f
+[2026-10-30 18:26:31 UTC] [Node 1] [report] DON-signed report (ecdsa, keccak256) over 544 bytes -> writeReport to 0x8571a085658dD50BE042a22cDE79963ce3b41d6e
+[2026-10-30 18:26:38 UTC] [Node 1] [verify] REJECTED submission 0x65bdf2f487b170f0abaceb3b8727340b7ca95845ebde0f3f319aa3b41fd15528: HashMismatch, WalletNotInOrder tx=0xcae6f1f604d2cee3a0b2b90ce9462bc1a568c6a454737bd467d0bcb75fa81caa
+
+## events
+1. trigger
+Method:    -
+Status:    success
+2. http-actions@1.0.0-alpha
+Method:    SendRequest
+Status:    success
+3. http-actions@1.0.0-alpha
+Method:    SendRequest
+Status:    success
+4. http-actions@1.0.0-alpha
+Method:    SendRequest
+Status:    success
+5. evm:ChainSelector:16015286601757825753@1.0.0
+Method:    CallContract
+Status:    success
+6. consensus@1.0.0-alpha
+Method:    Simple
+Status:    success
+7. consensus@1.0.0-alpha
+Method:    Simple
+Status:    success
+8. consensus@1.0.0-alpha
+Method:    Simple
+Status:    success
+9. consensus@1.0.0-alpha
+Method:    Report
+Status:    success
+10. evm:ChainSelector:16015286601757825753@1.0.0
+Method:    WriteReport
+Status:    success
+
+## On-demand docket sweep (HTTP trigger, {"action":"sweep"})
+## execution eb87d296fe36008f5e98c95494a271e5d11038bc9fdddf991c3b8340b3bf39c0 (Node 2 shown)
+[2026-10-30 18:42:17 UTC] [Node 2] [identity] on-demand sweep requested by 0xb8ad2787f447e04e8d66d7e888dd48fb68ddedb7
+[2026-10-30 18:42:21 UTC] [Node 2] [chain] OrderRegistry.getOrderIds() + 1x getOrder() at finalized block: 1 active
+[2026-10-30 18:42:32 UTC] [Node 2] [sweep] cand|5:26-cv-05055: 20 new entr(ies) after ECF 18, 3 look like orders (more pages pending)
+[2026-10-30 18:42:37 UTC] [Node 2] [gemini] effect=DISSOLVED entry=38 The court's order denying the motion for a preliminary injunction dissolved the temporary restraining order that was entered pending that motion.
+[2026-10-30 18:42:38 UTC] [Node 2] [report] DON-signed report (ecdsa, keccak256) over 288 bytes -> writeReport to 0x8571a085658dD50BE042a22cDE79963ce3b41d6e
+[2026-10-30 18:42:49 UTC] [Node 2] [sweep] 0xfef489dd27a7f151ec7c5387f06c07a251744e8de0407b176543865b39505741: DISSOLVED evidence=ECF 38 lastChecked=38 tx=0xf780458a7576c7c49edb33d629cfe4b48fcde29be68fec8a9af36efc8123d6a2
+
+## events
+1. trigger
+Method:    -
+Status:    success
+2. http-actions@1.0.0-alpha
+Method:    SendRequest
+Status:    success
+3. http-actions@1.0.0-alpha
+Method:    SendRequest
+Status:    success
+4. http-actions@1.0.0-alpha
+Method:    SendRequest
+Status:    success
+5. evm:ChainSelector:16015286601757825753@1.0.0
+Method:    CallContract
+Status:    success
+6. evm:ChainSelector:16015286601757825753@1.0.0
+Method:    CallContract
+Status:    success
+7. consensus@1.0.0-alpha
+Method:    Simple
+Status:    success
+8. consensus@1.0.0-alpha
+Method:    Simple
+Status:    success
+9. consensus@1.0.0-alpha
+Method:    Simple
+Status:    success
+10. consensus@1.0.0-alpha
+Method:    Report
+Status:    success
+11. evm:ChainSelector:16015286601757825753@1.0.0
+Method:    WriteReport
+Status:    success
+
