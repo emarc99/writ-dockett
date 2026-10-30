@@ -19,8 +19,19 @@ $rpc = $env:SEPOLIA_RPC_URL
 $pk = $env:CRE_ETH_PRIVATE_KEY
 $deployer = cast wallet address --private-key $pk
 
+# The public RPC is load-balanced, so a node can briefly report a stale nonce right after a tx.
+function With-Retry([scriptblock]$action) {
+    for ($i = 1; ; $i++) {
+        try { return & $action } catch {
+            if ($i -ge 4 -or "$_" -notmatch 'nonce too low|replacement transaction underpriced|already known') { throw }
+            Write-Host "  RPC nonce lag, retrying ($i)..."
+            Start-Sleep -Seconds (6 * $i)
+        }
+    }
+}
+
 function Deploy-Contract([string]$id, [string[]]$ctorArgs) {
-    $out = forge create $id --root (Join-Path $root "contracts") --rpc-url $rpc --private-key $pk --broadcast --json --constructor-args @ctorArgs
+    $out = With-Retry { forge create $id --root (Join-Path $root "contracts") --rpc-url $rpc --private-key $pk --broadcast --json --constructor-args @ctorArgs }
     $json = ($out -join "`n")
     ($json.Substring($json.LastIndexOf("{")) | ConvertFrom-Json).deployedTo
 }
@@ -39,7 +50,7 @@ $named = @(
     "0x9030D5C596d636eEFC8f0ad7b2788AE7E9ef3D46"
 )
 foreach ($w in $named + @($deployer)) {
-    cast send $token "mint(address,uint256)" $w 250000000000 --rpc-url $rpc --private-key $pk --json | Out-Null
+    With-Retry { cast send $token "mint(address,uint256)" $w 250000000000 --rpc-url $rpc --private-key $pk --json } | Out-Null
     Write-Host "minted 250,000 wUSD to $w"
 }
 
