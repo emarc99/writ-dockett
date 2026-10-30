@@ -1,10 +1,10 @@
 /**
  * Local demo server for Writ. Serves the UI and turns a submission into a CRE workflow run.
  *
- * Deployed (deployments/sepolia.json has a workflowId): POST /api/verify signs a JSON-RPC request
- * with the trigger's authorized key, sends it to the CRE gateway, waits for the DON execution and
- * streams one node's logs back. POST /api/sweep runs the cron handler as a local dry run; the DON
- * itself runs it on schedule, and the registry only accepts reports from the KeystoneForwarder.
+ * Deployed (deployments/sepolia.json has a workflowId): POST /api/verify and POST /api/sweep sign
+ * a JSON-RPC request with the HTTP trigger's authorized key, send it to the CRE gateway, wait for
+ * the DON execution and stream one node's logs back. The sweep request is `{"action":"sweep"}`;
+ * the DON also runs the sweep on its cron schedule.
  *
  * Simulation (no workflowId): both endpoints run `cre workflow simulate --broadcast`.
  *
@@ -54,11 +54,9 @@ function streamRun(run: (write: (line: string) => void, raw: (chunk: Uint8Array)
 	return new Response(stream, { headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' } })
 }
 
-function simulate(triggerIndex: number, payloadPath: string | undefined, broadcast: boolean): Response {
+function simulate(triggerIndex: number, payloadPath?: string): Response {
 	return streamRun(async (write, raw) => {
-		const args = ['cre', 'workflow', 'simulate', 'workflows/writ', '--target', 'staging-settings', '--non-interactive', '--trigger-index', String(triggerIndex)]
-		if (broadcast) args.push('--broadcast')
-		else write('[writ] local dry run (no --broadcast): the deployed DON runs this handler on its cron schedule')
+		const args = ['cre', 'workflow', 'simulate', 'workflows/writ', '--target', 'staging-settings', '--non-interactive', '--trigger-index', String(triggerIndex), '--broadcast']
 		if (payloadPath) args.push('--http-payload', payloadPath)
 		const proc = Bun.spawn(args, { cwd: ROOT, stdout: 'pipe', stderr: 'pipe', env: { ...process.env, NO_COLOR: '1' } })
 		const pump = async (s: ReadableStream<Uint8Array>) => {
@@ -97,7 +95,7 @@ function resultFromLogs(lines: string[]): Record<string, unknown> | undefined {
 	return undefined
 }
 
-function runDeployed(input: unknown): Response {
+function runDeployed(input: unknown, kind: 'verify' | 'sweep'): Response {
 	return streamRun(async (write) => {
 		const key = await signerKeyFromEnv(ROOT)
 		write(`[writ] signing workflows.execute for ${deployment.workflowName} (${deployment.workflowId.slice(0, 10)}…) as ${privateKeyToAccount(key).address}`)
@@ -114,21 +112,23 @@ function runDeployed(input: unknown): Response {
 			write(`[writ] DON execution status: ${status}`)
 		}
 
+		const done = (ls: string[]) => (kind === 'verify' ? Boolean(resultFromLogs(ls)) : ls.some((l) => /\[(sweep|chain)\]/.test(l)))
 		let lines: string[] = []
 		for (let i = 0; i < 4; i++) {
 			lines = (await cre('execution', 'logs', id)).split(/\r?\n/).filter((l) => /^\[\d{4}-/.test(l))
-			if (resultFromLogs(lines)) break
+			if (done(lines)) break
 			await Bun.sleep(5000)
 		}
-		const final = lines.find((l) => /\[verify\] (VERIFIED|REJECTED|order )/.test(l))
+		const final = lines.find((l) => /\[verify\] (VERIFIED|REJECTED|order )|tx=0x/.test(l)) ?? lines[0]
 		const node = final ? /\[(Node \d+)\]/.exec(final)?.[1] : undefined
 		const nodes = new Set(lines.map((l) => /\[(Node \d+)\]/.exec(l)?.[1]).filter(Boolean))
 		write(`[writ] ${nodes.size} DON node(s) ran the workflow; showing ${node ?? 'all nodes'}`)
 		const mine = node ? lines.filter((l) => l.includes(`[${node}]`)) : lines
 		for (const l of mine) write(`[USER LOG] ${l.replace(/^\[[^\]]+\] \[Node \d+\] /, '')}`)
 
-		const result = resultFromLogs(mine)
+		const result = kind === 'verify' ? resultFromLogs(mine) : undefined
 		if (result) write(`[writ] result ${JSON.stringify(result)}`)
+		else if (kind === 'sweep' && /SUCCESS/i.test(status)) write(`[writ] DON execution ${sent.executionId} finished: ${status}`)
 		else write(`workflow execution failed: execution ${sent.executionId} ended with status ${status}`)
 	})
 }
@@ -170,13 +170,15 @@ Bun.serve({
 				wallets: (body.wallets ?? []).map(String),
 				...(body.filedDate ? { filedDate: String(body.filedDate) } : {}),
 			}
-			if (DEPLOYED) return runDeployed(submission)
+			if (DEPLOYED) return runDeployed(submission, 'verify')
 			const path = join(tmpdir(), `writ-submission-${Date.now()}.json`)
 			await Bun.write(path, JSON.stringify(submission))
-			return simulate(0, path, true)
+			return simulate(0, path)
 		}
 
-		if (url.pathname === '/api/sweep' && req.method === 'POST') return simulate(1, undefined, !DEPLOYED)
+		if (url.pathname === '/api/sweep' && req.method === 'POST') {
+			return DEPLOYED ? runDeployed({ action: 'sweep' }, 'sweep') : simulate(1)
+		}
 
 		const file = Bun.file(join(PUBLIC, url.pathname === '/' ? 'index.html' : url.pathname.replace(/^\/+/, '')))
 		return (await file.exists()) && !url.pathname.includes('..') ? new Response(file) : new Response('not found', { status: 404 })

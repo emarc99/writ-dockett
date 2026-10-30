@@ -64,7 +64,7 @@
 
 		<section class="card" id="sweep-card">
 			<h2>3 · Docket sweep</h2>
-			<p class="muted">The cron trigger re-reads each active order's docket. When the court dissolves, supersedes or extends the order, or a 14-day ex parte TRO runs out (Fed. R. Civ. P. 65(b)(2)), the freeze lifts on its own.</p>
+			<p class="muted">The cron trigger re-reads each active order's docket. When the court dissolves, supersedes or extends the order, or a 14-day ex parte TRO runs out (Fed. R. Civ. P. 65(b)(2)), the freeze lifts on its own. The DON runs it every 6 hours; this button asks it to run now. It reads finalized blocks, so an order verified in the last ~15 minutes is not visible to it yet.</p>
 			<button type="button" id="sweep-btn" class="primary">Run sweep now</button>
 			<ol id="sweep-checks" class="checks"></ol>
 			<details><summary>Sweep log</summary><pre id="sweep-log"></pre></details>
