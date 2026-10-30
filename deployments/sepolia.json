@@ -1,15 +1,14 @@
 {
     "chain":  "ethereum-testnet-sepolia",
     "chainId":  11155111,
-    "orderRegistry":  "0xC0efC2d0B41Bbcb9d26C7F4F32678a247E15a202",
-    "writToken":  "0x4d0DF1DF351d3035A9AEa82cc34Fc4d4C5e30e5f",
+    "orderRegistry":  "0x8571a085658dD50BE042a22cDE79963ce3b41d6e",
+    "writToken":  "0x5D446Fedfa03a8Fb387AA27BF55D9A8646aFEa93",
     "forwarder":  "0xF8344CFd5c43616a4366C34E3EEE75af79a74482",
-    "simulationForwarder":  "0x15fC6ae953E024d975e77382eEeC56A9101f9F88",
     "workflowName":  "writ-staging",
-    "workflowId":  "0003deda6ecfece148ff7945bb31e211c619562c9c5527ccbf72e67b7478e7f3",
+    "workflowId":  "00165403a8a9bccfcb0e16bfe1bff207e3282d8b852a87cb2fda4e6c449de852",
     "workflowOwner":  "0x1F16F1d733D365B1a1E43B104BA67Ec763028627",
     "httpAuthorizedKey":  "0xb8AD2787f447e04E8D66D7e888Dd48fB68DdedB7",
     "deployer":  "0xb8AD2787f447e04E8D66D7e888Dd48fB68DdedB7",
-    "deployedAt":  "2026-10-30T16:41:50.6022576Z",
-    "fromBlock":  12027500
+    "deployedAt":  "2026-10-30T18:21:27.2812648Z",
+    "fromBlock":  12028400
 }
