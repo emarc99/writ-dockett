@@ -1,0 +1,11 @@
+# CRE project settings. Workflows live in ./workflows; secrets are mapped in ./secrets.yaml
+# and resolved from the git-ignored ./.env at simulation time.
+staging-settings:
+  rpcs:
+    - chain-name: ethereum-testnet-sepolia
+      url: https://ethereum-sepolia-rpc.publicnode.com
+
+production-settings:
+  rpcs:
+    - chain-name: ethereum-testnet-sepolia
+      url: https://ethereum-sepolia-rpc.publicnode.com

@@ -1,0 +1,11 @@
+{
+  "chainSelectorName": "ethereum-testnet-sepolia",
+  "registryAddress": "0xC0efC2d0B41Bbcb9d26C7F4F32678a247E15a202",
+  "gasLimit": "3000000",
+  "courtListenerBaseUrl": "https://www.courtlistener.com/api/rest/v4",
+  "geminiModels": ["gemini-3.5-flash", "gemini-3.1-flash-lite"],
+  "sweepSchedule": "0 0 */6 * * *",
+  "maxOrdersScanned": 10,
+  "maxOrdersSwept": 2,
+  "httpAuthorizedKey": ""
+}
