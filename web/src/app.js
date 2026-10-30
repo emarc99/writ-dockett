@@ -103,6 +103,7 @@ async function runWorkflow(url, body, { log, checks, onResult }) {
 				try { onResult(JSON.parse(JSON.parse(line.trim()))) } catch { /* not JSON */ }
 			}
 			if (line.includes('Workflow Simulation Result')) nextIsResult = true
+			if (line.startsWith('[writ] result ')) onResult(JSON.parse(line.slice('[writ] result '.length)))
 			if (/workflow execution failed/i.test(line)) onResult({ decision: 'ERROR', error: line })
 			const m = /\[USER LOG\] \[(check|gemini|legal|sweep|chain|identity|report)\] (?:(PASS|FAIL) )?([^:]+?)(?:: (.*))?$/.exec(line)
 			if (m) {

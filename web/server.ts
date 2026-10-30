@@ -1,18 +1,26 @@
 /**
- * Local demo server for Writ. Serves the UI and turns a submission into a CRE workflow run:
- * POST /api/verify fires the HTTP trigger, POST /api/sweep fires the cron trigger, both via
- * `cre workflow simulate --broadcast`, with the CLI output streamed back line by line.
- * Once the workflow is deployed to a DON, /api/verify becomes a signed POST to the CRE gateway.
+ * Local demo server for Writ. Serves the UI and turns a submission into a CRE workflow run.
+ *
+ * Deployed (deployments/sepolia.json has a workflowId): POST /api/verify signs a JSON-RPC request
+ * with the trigger's authorized key, sends it to the CRE gateway, waits for the DON execution and
+ * streams one node's logs back. POST /api/sweep runs the cron handler as a local dry run; the DON
+ * itself runs it on schedule, and the registry only accepts reports from the KeystoneForwarder.
+ *
+ * Simulation (no workflowId): both endpoints run `cre workflow simulate --broadcast`.
  *
  *   bun web/server.ts          -> http://localhost:8787
  */
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
+import { privateKeyToAccount } from 'viem/accounts'
+import { Reason } from '../workflows/writ/legal'
+import { signerKeyFromEnv, triggerDeployed } from './gateway'
 
 const ROOT = resolve(import.meta.dir, '..')
 const PUBLIC = join(import.meta.dir, 'public')
 const PORT = Number(process.env.PORT ?? 8787)
 const deployment = await Bun.file(join(ROOT, 'deployments', 'sepolia.json')).json()
+const DEPLOYED = Boolean(deployment.workflowId)
 
 const bundle = await Bun.build({ entrypoints: [join(import.meta.dir, 'src', 'app.js')], target: 'browser', minify: true })
 if (!bundle.success) throw new AggregateError(bundle.logs, 'UI bundle failed')
@@ -23,25 +31,20 @@ const FIXTURES: Record<string, string> = {
 	'ecf-18-forged.pdf': 'fixtures/newton-v-ermilov/entry-18.forged.pdf',
 }
 
+const encoder = new TextEncoder()
 let busy = false
 
-function simulate(triggerIndex: number, payloadPath?: string): Response {
+/** Streams whatever `run` writes, holding the single-run lock until it finishes. */
+function streamRun(run: (write: (line: string) => void, raw: (chunk: Uint8Array) => void) => Promise<void>): Response {
 	if (busy) return new Response('Another workflow run is in progress, try again in a moment.\n', { status: 409 })
 	busy = true
-	const args = ['cre', 'workflow', 'simulate', 'workflows/writ', '--target', 'staging-settings', '--non-interactive', '--trigger-index', String(triggerIndex), '--broadcast']
-	if (payloadPath) args.push('--http-payload', payloadPath)
-	const proc = Bun.spawn(args, { cwd: ROOT, stdout: 'pipe', stderr: 'pipe', env: { ...process.env, NO_COLOR: '1' } })
-
-	const encoder = new TextEncoder()
 	const stream = new ReadableStream({
 		async start(controller) {
-			const pump = async (s: ReadableStream<Uint8Array>) => {
-				for await (const chunk of s) controller.enqueue(chunk)
-			}
+			const write = (line: string) => controller.enqueue(encoder.encode(`${line}\n`))
 			try {
-				await Promise.all([pump(proc.stdout), pump(proc.stderr)])
-				const code = await proc.exited
-				controller.enqueue(encoder.encode(`\n[writ] cre exited with code ${code}\n`))
+				await run(write, (chunk) => controller.enqueue(chunk))
+			} catch (err) {
+				write(`workflow execution failed: ${(err as Error).message ?? err}`)
 			} finally {
 				busy = false
 				controller.close()
@@ -49,6 +52,85 @@ function simulate(triggerIndex: number, payloadPath?: string): Response {
 		},
 	})
 	return new Response(stream, { headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' } })
+}
+
+function simulate(triggerIndex: number, payloadPath: string | undefined, broadcast: boolean): Response {
+	return streamRun(async (write, raw) => {
+		const args = ['cre', 'workflow', 'simulate', 'workflows/writ', '--target', 'staging-settings', '--non-interactive', '--trigger-index', String(triggerIndex)]
+		if (broadcast) args.push('--broadcast')
+		else write('[writ] local dry run (no --broadcast): the deployed DON runs this handler on its cron schedule')
+		if (payloadPath) args.push('--http-payload', payloadPath)
+		const proc = Bun.spawn(args, { cwd: ROOT, stdout: 'pipe', stderr: 'pipe', env: { ...process.env, NO_COLOR: '1' } })
+		const pump = async (s: ReadableStream<Uint8Array>) => {
+			for await (const chunk of s) raw(chunk)
+		}
+		await Promise.all([pump(proc.stdout), pump(proc.stderr)])
+		write(`\n[writ] cre exited with code ${await proc.exited}`)
+	})
+}
+
+async function cre(...args: string[]): Promise<string> {
+	const proc = Bun.spawn(['cre', ...args], { cwd: ROOT, stdout: 'pipe', stderr: 'pipe', env: { ...process.env, NO_COLOR: '1' } })
+	const [out, err] = await Promise.all([new Response(proc.stdout).text(), new Response(proc.stderr).text()])
+	await proc.exited
+	return out + err
+}
+
+/** Turns the DON's final `[verify]` log line into the same result shape the simulator returns. */
+function resultFromLogs(lines: string[]): Record<string, unknown> | undefined {
+	const legal = lines.map((l) => /expiresAt=(\S+)/.exec(l)?.[1]).find(Boolean)
+	for (const l of lines) {
+		let m = /\[verify\] VERIFIED (0x[0-9a-f]{64}): froze (\d+) wallet\(s\) tx=(0x[0-9a-f]+)/i.exec(l)
+		if (m) {
+			const expiresAt = legal && legal !== 'until' ? Math.floor(Date.parse(legal) / 1000) : 0
+			return { decision: 'VERIFIED', orderId: m[1], wallets: Array(Number(m[2])).fill(''), expiresAt, txHash: m[3] }
+		}
+		m = /\[verify\] REJECTED submission (0x[0-9a-f]{64}): (.+) tx=(0x[0-9a-f]+)/i.exec(l)
+		if (m) {
+			const labels = m[2].split(', ')
+			const reasons = labels.reduce((acc, label) => acc | (Reason[label as keyof typeof Reason] ?? 0), 0)
+			return { decision: 'REJECTED', submissionId: m[1], reasons, labels, txHash: m[3] }
+		}
+		m = /\[verify\] order (0x[0-9a-f]{64}) already recorded with status (\w+)/i.exec(l)
+		if (m) return { decision: 'ALREADY_RECORDED', orderId: m[1], status: m[2] }
+	}
+	return undefined
+}
+
+function runDeployed(input: unknown): Response {
+	return streamRun(async (write) => {
+		const key = await signerKeyFromEnv(ROOT)
+		write(`[writ] signing workflows.execute for ${deployment.workflowName} (${deployment.workflowId.slice(0, 10)}…) as ${privateKeyToAccount(key).address}`)
+		const sent = await triggerDeployed(deployment.workflowId, input, key)
+		if (!sent.executionId) throw new Error(`gateway refused the request: ${sent.error ?? JSON.stringify(sent.raw)}`)
+		write(`[writ] CRE gateway ${sent.status}: execution ${sent.executionId}`)
+
+		const id = sent.executionId.replace(/^0x/, '')
+		let status = 'PENDING'
+		for (let i = 0; i < 30 && !/SUCCESS|FAIL|ERROR|TIMEOUT/i.test(status); i++) {
+			await Bun.sleep(5000)
+			const list = await cre('execution', 'list', deployment.workflowName)
+			status = new RegExp(`${id}[\\s\\S]*?Status:\\s+(\\w+)`).exec(list)?.[1] ?? status
+			write(`[writ] DON execution status: ${status}`)
+		}
+
+		let lines: string[] = []
+		for (let i = 0; i < 4; i++) {
+			lines = (await cre('execution', 'logs', id)).split(/\r?\n/).filter((l) => /^\[\d{4}-/.test(l))
+			if (resultFromLogs(lines)) break
+			await Bun.sleep(5000)
+		}
+		const final = lines.find((l) => /\[verify\] (VERIFIED|REJECTED|order )/.test(l))
+		const node = final ? /\[(Node \d+)\]/.exec(final)?.[1] : undefined
+		const nodes = new Set(lines.map((l) => /\[(Node \d+)\]/.exec(l)?.[1]).filter(Boolean))
+		write(`[writ] ${nodes.size} DON node(s) ran the workflow; showing ${node ?? 'all nodes'}`)
+		const mine = node ? lines.filter((l) => l.includes(`[${node}]`)) : lines
+		for (const l of mine) write(`[USER LOG] ${l.replace(/^\[[^\]]+\] \[Node \d+\] /, '')}`)
+
+		const result = resultFromLogs(mine)
+		if (result) write(`[writ] result ${JSON.stringify(result)}`)
+		else write(`workflow execution failed: execution ${sent.executionId} ended with status ${status}`)
+	})
 }
 
 function validSubmission(b: any): string | undefined {
@@ -88,16 +170,17 @@ Bun.serve({
 				wallets: (body.wallets ?? []).map(String),
 				...(body.filedDate ? { filedDate: String(body.filedDate) } : {}),
 			}
+			if (DEPLOYED) return runDeployed(submission)
 			const path = join(tmpdir(), `writ-submission-${Date.now()}.json`)
 			await Bun.write(path, JSON.stringify(submission))
-			return simulate(0, path)
+			return simulate(0, path, true)
 		}
 
-		if (url.pathname === '/api/sweep' && req.method === 'POST') return simulate(1)
+		if (url.pathname === '/api/sweep' && req.method === 'POST') return simulate(1, undefined, !DEPLOYED)
 
 		const file = Bun.file(join(PUBLIC, url.pathname === '/' ? 'index.html' : url.pathname.replace(/^\/+/, '')))
 		return (await file.exists()) && !url.pathname.includes('..') ? new Response(file) : new Response('not found', { status: 404 })
 	},
 })
 
-console.log(`Writ demo UI on http://localhost:${PORT}`)
+console.log(`Writ demo UI on http://localhost:${PORT} (${DEPLOYED ? `deployed workflow ${deployment.workflowName}` : 'local simulation'})`)
