@@ -1,0 +1,24 @@
+# secrets
+.env
+*.env
+!.env.example
+
+# deps / build
+node_modules/
+dist/
+.next/
+*.wasm
+
+# foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/*/31337/
+contracts/broadcast/**/dry-run/
+
+# scratch research downloads (curated fixtures live in fixtures/)
+research/
+
+# os / editor
+.DS_Store
+Thumbs.db
+.vscode/
