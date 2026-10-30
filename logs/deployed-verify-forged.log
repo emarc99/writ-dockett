@@ -1,0 +1,220 @@
+﻿# Deployed CRE execution (writ-staging, workflow 0003deda6ecfece148ff7945bb31e211c619562c9c5527ccbf72e67b7478e7f3)
+# Triggered via gateway with: bun web/gateway.ts payloads/forged.json
+# Execution 0xa03c402f9c8a86d7b46cbcfdca7c132ed317d4fa0b4e2a0c8ebc896d84370fc8 -> SUCCESS (33s)
+# cre execution logs <id>
+
+[2026-10-30 17:53:53 UTC] [Node 8] [verify] cand|5:26-cv-05055 ECF 18 sha1=0xa40c167938d56e15f8959675bb5c7e46dda1bdea claimed=6 wallet(s)
+[2026-10-30 17:53:53 UTC] [Node 8] [identity] trigger signer: 0xb8ad2787f447e04e8d66d7e888dd48fb68ddedb7
+[2026-10-30 17:53:53 UTC] [Node 9] [verify] cand|5:26-cv-05055 ECF 18 sha1=0xa40c167938d56e15f8959675bb5c7e46dda1bdea claimed=6 wallet(s)
+[2026-10-30 17:53:53 UTC] [Node 9] [identity] trigger signer: 0xb8ad2787f447e04e8d66d7e888dd48fb68ddedb7
+[2026-10-30 17:53:53 UTC] [Node 10] [verify] cand|5:26-cv-05055 ECF 18 sha1=0xa40c167938d56e15f8959675bb5c7e46dda1bdea claimed=6 wallet(s)
+[2026-10-30 17:53:53 UTC] [Node 10] [identity] trigger signer: 0xb8ad2787f447e04e8d66d7e888dd48fb68ddedb7
+[2026-10-30 17:53:53 UTC] [Node 2] [verify] cand|5:26-cv-05055 ECF 18 sha1=0xa40c167938d56e15f8959675bb5c7e46dda1bdea claimed=6 wallet(s)
+[2026-10-30 17:53:53 UTC] [Node 2] [identity] trigger signer: 0xb8ad2787f447e04e8d66d7e888dd48fb68ddedb7
+[2026-10-30 17:53:53 UTC] [Node 5] [verify] cand|5:26-cv-05055 ECF 18 sha1=0xa40c167938d56e15f8959675bb5c7e46dda1bdea claimed=6 wallet(s)
+[2026-10-30 17:53:53 UTC] [Node 5] [identity] trigger signer: 0xb8ad2787f447e04e8d66d7e888dd48fb68ddedb7
+[2026-10-30 17:53:53 UTC] [Node 6] [verify] cand|5:26-cv-05055 ECF 18 sha1=0xa40c167938d56e15f8959675bb5c7e46dda1bdea claimed=6 wallet(s)
+[2026-10-30 17:53:53 UTC] [Node 6] [identity] trigger signer: 0xb8ad2787f447e04e8d66d7e888dd48fb68ddedb7
+[2026-10-30 17:53:53 UTC] [Node 4] [verify] cand|5:26-cv-05055 ECF 18 sha1=0xa40c167938d56e15f8959675bb5c7e46dda1bdea claimed=6 wallet(s)
+[2026-10-30 17:53:53 UTC] [Node 4] [identity] trigger signer: 0xb8ad2787f447e04e8d66d7e888dd48fb68ddedb7
+[2026-10-30 17:53:53 UTC] [Node 1] [verify] cand|5:26-cv-05055 ECF 18 sha1=0xa40c167938d56e15f8959675bb5c7e46dda1bdea claimed=6 wallet(s)
+[2026-10-30 17:53:53 UTC] [Node 1] [identity] trigger signer: 0xb8ad2787f447e04e8d66d7e888dd48fb68ddedb7
+[2026-10-30 17:53:53 UTC] [Node 7] [verify] cand|5:26-cv-05055 ECF 18 sha1=0xa40c167938d56e15f8959675bb5c7e46dda1bdea claimed=6 wallet(s)
+[2026-10-30 17:53:53 UTC] [Node 7] [identity] trigger signer: 0xb8ad2787f447e04e8d66d7e888dd48fb68ddedb7
+[2026-10-30 17:53:53 UTC] [Node 3] [verify] cand|5:26-cv-05055 ECF 18 sha1=0xa40c167938d56e15f8959675bb5c7e46dda1bdea claimed=6 wallet(s)
+[2026-10-30 17:53:53 UTC] [Node 3] [identity] trigger signer: 0xb8ad2787f447e04e8d66d7e888dd48fb68ddedb7
+[2026-10-30 17:53:55 UTC] [Node 1] [chain] OrderRegistry.getOrder(0xfef489dd27a7f151ec7c5387f06c07a251744e8de0407b176543865b39505741) at finalized block: status=Dissolved
+[2026-10-30 17:53:55 UTC] [Node 9] [chain] OrderRegistry.getOrder(0xfef489dd27a7f151ec7c5387f06c07a251744e8de0407b176543865b39505741) at finalized block: status=Dissolved
+[2026-10-30 17:53:55 UTC] [Node 10] [chain] OrderRegistry.getOrder(0xfef489dd27a7f151ec7c5387f06c07a251744e8de0407b176543865b39505741) at finalized block: status=Dissolved
+[2026-10-30 17:53:55 UTC] [Node 8] [chain] OrderRegistry.getOrder(0xfef489dd27a7f151ec7c5387f06c07a251744e8de0407b176543865b39505741) at finalized block: status=Dissolved
+[2026-10-30 17:53:55 UTC] [Node 2] [chain] OrderRegistry.getOrder(0xfef489dd27a7f151ec7c5387f06c07a251744e8de0407b176543865b39505741) at finalized block: status=Dissolved
+[2026-10-30 17:53:55 UTC] [Node 6] [chain] OrderRegistry.getOrder(0xfef489dd27a7f151ec7c5387f06c07a251744e8de0407b176543865b39505741) at finalized block: status=Dissolved
+[2026-10-30 17:53:55 UTC] [Node 4] [chain] OrderRegistry.getOrder(0xfef489dd27a7f151ec7c5387f06c07a251744e8de0407b176543865b39505741) at finalized block: status=Dissolved
+[2026-10-30 17:53:55 UTC] [Node 5] [chain] OrderRegistry.getOrder(0xfef489dd27a7f151ec7c5387f06c07a251744e8de0407b176543865b39505741) at finalized block: status=Dissolved
+[2026-10-30 17:53:55 UTC] [Node 3] [chain] OrderRegistry.getOrder(0xfef489dd27a7f151ec7c5387f06c07a251744e8de0407b176543865b39505741) at finalized block: status=Dissolved
+[2026-10-30 17:53:55 UTC] [Node 7] [chain] OrderRegistry.getOrder(0xfef489dd27a7f151ec7c5387f06c07a251744e8de0407b176543865b39505741) at finalized block: status=Dissolved
+[2026-10-30 17:54:00 UTC] [Node 4] [check] PASS docket exists: Newton AC/DC Fund, L.P. v. Ermilov (CourtListener #73408471)
+[2026-10-30 17:54:00 UTC] [Node 3] [check] PASS docket exists: Newton AC/DC Fund, L.P. v. Ermilov (CourtListener #73408471)
+[2026-10-30 17:54:00 UTC] [Node 5] [check] PASS docket exists: Newton AC/DC Fund, L.P. v. Ermilov (CourtListener #73408471)
+[2026-10-30 17:54:00 UTC] [Node 7] [check] PASS docket exists: Newton AC/DC Fund, L.P. v. Ermilov (CourtListener #73408471)
+[2026-10-30 17:54:00 UTC] [Node 6] [check] PASS docket exists: Newton AC/DC Fund, L.P. v. Ermilov (CourtListener #73408471)
+[2026-10-30 17:54:00 UTC] [Node 9] [check] PASS docket exists: Newton AC/DC Fund, L.P. v. Ermilov (CourtListener #73408471)
+[2026-10-30 17:54:00 UTC] [Node 1] [check] PASS docket exists: Newton AC/DC Fund, L.P. v. Ermilov (CourtListener #73408471)
+[2026-10-30 17:54:00 UTC] [Node 2] [check] PASS docket exists: Newton AC/DC Fund, L.P. v. Ermilov (CourtListener #73408471)
+[2026-10-30 17:54:00 UTC] [Node 10] [check] PASS docket exists: Newton AC/DC Fund, L.P. v. Ermilov (CourtListener #73408471)
+[2026-10-30 17:54:00 UTC] [Node 8] [check] PASS docket exists: Newton AC/DC Fund, L.P. v. Ermilov (CourtListener #73408471)
+[2026-10-30 17:54:03 UTC] [Node 1] [check] PASS entry exists: ECF 18 filed 2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 1] [check] PASS is a court order: STIPULATED CONSENT TEMPORARY RESTRAINING ORDER, AS MODIFIED. Signed by Judge P. Casey Pitts.(lrt, COURT STAFF) (Filed on
+[2026-10-30 17:54:03 UTC] [Node 1] [check] FAIL document hash: court PDF sha1=0xec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd submitted=0xa40c167938d56e15f8959675bb5c7e46dda1bdea
+[2026-10-30 17:54:03 UTC] [Node 1] [check] PASS filing date: docket=2026-06-05 submitted=2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 4] [check] PASS entry exists: ECF 18 filed 2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 4] [check] PASS is a court order: STIPULATED CONSENT TEMPORARY RESTRAINING ORDER, AS MODIFIED. Signed by Judge P. Casey Pitts.(lrt, COURT STAFF) (Filed on
+[2026-10-30 17:54:03 UTC] [Node 4] [check] FAIL document hash: court PDF sha1=0xec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd submitted=0xa40c167938d56e15f8959675bb5c7e46dda1bdea
+[2026-10-30 17:54:03 UTC] [Node 4] [check] PASS filing date: docket=2026-06-05 submitted=2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 6] [check] PASS entry exists: ECF 18 filed 2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 6] [check] PASS is a court order: STIPULATED CONSENT TEMPORARY RESTRAINING ORDER, AS MODIFIED. Signed by Judge P. Casey Pitts.(lrt, COURT STAFF) (Filed on
+[2026-10-30 17:54:03 UTC] [Node 6] [check] FAIL document hash: court PDF sha1=0xec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd submitted=0xa40c167938d56e15f8959675bb5c7e46dda1bdea
+[2026-10-30 17:54:03 UTC] [Node 6] [check] PASS filing date: docket=2026-06-05 submitted=2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 2] [check] PASS entry exists: ECF 18 filed 2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 2] [check] PASS is a court order: STIPULATED CONSENT TEMPORARY RESTRAINING ORDER, AS MODIFIED. Signed by Judge P. Casey Pitts.(lrt, COURT STAFF) (Filed on
+[2026-10-30 17:54:03 UTC] [Node 2] [check] FAIL document hash: court PDF sha1=0xec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd submitted=0xa40c167938d56e15f8959675bb5c7e46dda1bdea
+[2026-10-30 17:54:03 UTC] [Node 2] [check] PASS filing date: docket=2026-06-05 submitted=2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 3] [check] PASS entry exists: ECF 18 filed 2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 3] [check] PASS is a court order: STIPULATED CONSENT TEMPORARY RESTRAINING ORDER, AS MODIFIED. Signed by Judge P. Casey Pitts.(lrt, COURT STAFF) (Filed on
+[2026-10-30 17:54:03 UTC] [Node 3] [check] FAIL document hash: court PDF sha1=0xec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd submitted=0xa40c167938d56e15f8959675bb5c7e46dda1bdea
+[2026-10-30 17:54:03 UTC] [Node 3] [check] PASS filing date: docket=2026-06-05 submitted=2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 10] [check] PASS entry exists: ECF 18 filed 2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 10] [check] PASS is a court order: STIPULATED CONSENT TEMPORARY RESTRAINING ORDER, AS MODIFIED. Signed by Judge P. Casey Pitts.(lrt, COURT STAFF) (Filed on
+[2026-10-30 17:54:03 UTC] [Node 10] [check] FAIL document hash: court PDF sha1=0xec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd submitted=0xa40c167938d56e15f8959675bb5c7e46dda1bdea
+[2026-10-30 17:54:03 UTC] [Node 10] [check] PASS filing date: docket=2026-06-05 submitted=2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 8] [check] PASS entry exists: ECF 18 filed 2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 8] [check] PASS is a court order: STIPULATED CONSENT TEMPORARY RESTRAINING ORDER, AS MODIFIED. Signed by Judge P. Casey Pitts.(lrt, COURT STAFF) (Filed on
+[2026-10-30 17:54:03 UTC] [Node 8] [check] FAIL document hash: court PDF sha1=0xec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd submitted=0xa40c167938d56e15f8959675bb5c7e46dda1bdea
+[2026-10-30 17:54:03 UTC] [Node 8] [check] PASS filing date: docket=2026-06-05 submitted=2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 9] [check] PASS entry exists: ECF 18 filed 2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 9] [check] PASS is a court order: STIPULATED CONSENT TEMPORARY RESTRAINING ORDER, AS MODIFIED. Signed by Judge P. Casey Pitts.(lrt, COURT STAFF) (Filed on
+[2026-10-30 17:54:03 UTC] [Node 9] [check] FAIL document hash: court PDF sha1=0xec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd submitted=0xa40c167938d56e15f8959675bb5c7e46dda1bdea
+[2026-10-30 17:54:03 UTC] [Node 9] [check] PASS filing date: docket=2026-06-05 submitted=2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 5] [check] PASS entry exists: ECF 18 filed 2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 5] [check] PASS is a court order: STIPULATED CONSENT TEMPORARY RESTRAINING ORDER, AS MODIFIED. Signed by Judge P. Casey Pitts.(lrt, COURT STAFF) (Filed on
+[2026-10-30 17:54:03 UTC] [Node 5] [check] FAIL document hash: court PDF sha1=0xec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd submitted=0xa40c167938d56e15f8959675bb5c7e46dda1bdea
+[2026-10-30 17:54:03 UTC] [Node 5] [check] PASS filing date: docket=2026-06-05 submitted=2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 7] [check] PASS entry exists: ECF 18 filed 2026-06-05
+[2026-10-30 17:54:03 UTC] [Node 7] [check] PASS is a court order: STIPULATED CONSENT TEMPORARY RESTRAINING ORDER, AS MODIFIED. Signed by Judge P. Casey Pitts.(lrt, COURT STAFF) (Filed on
+[2026-10-30 17:54:03 UTC] [Node 7] [check] FAIL document hash: court PDF sha1=0xec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd submitted=0xa40c167938d56e15f8959675bb5c7e46dda1bdea
+[2026-10-30 17:54:03 UTC] [Node 7] [check] PASS filing date: docket=2026-06-05 submitted=2026-06-05
+[2026-10-30 17:54:10 UTC] [Node 5] [gemini] type=TRO withoutNotice=false untilFurtherOrder=true expiry="" days=0 wallets=6
+[2026-10-30 17:54:10 UTC] [Node 5] [legal] TRO with notice/consent -> expiresAt=until further order
+[2026-10-30 17:54:10 UTC] [Node 5] [check] PASS order names wallets: 6 restrained wallet(s) found in the official text
+[2026-10-30 17:54:10 UTC] [Node 5] [check] FAIL claimed wallets are in the order: not in order: 0x4c1f0b2d9e8a7f6c3b5a49d8e7f60a1b2c3d4e5f
+[2026-10-30 17:54:10 UTC] [Node 9] [gemini] type=TRO withoutNotice=false untilFurtherOrder=true expiry="" days=0 wallets=6
+[2026-10-30 17:54:10 UTC] [Node 9] [legal] TRO with notice/consent -> expiresAt=until further order
+[2026-10-30 17:54:10 UTC] [Node 9] [check] PASS order names wallets: 6 restrained wallet(s) found in the official text
+[2026-10-30 17:54:10 UTC] [Node 9] [check] FAIL claimed wallets are in the order: not in order: 0x4c1f0b2d9e8a7f6c3b5a49d8e7f60a1b2c3d4e5f
+[2026-10-30 17:54:10 UTC] [Node 4] [gemini] type=TRO withoutNotice=false untilFurtherOrder=true expiry="" days=0 wallets=6
+[2026-10-30 17:54:10 UTC] [Node 4] [legal] TRO with notice/consent -> expiresAt=until further order
+[2026-10-30 17:54:10 UTC] [Node 4] [check] PASS order names wallets: 6 restrained wallet(s) found in the official text
+[2026-10-30 17:54:10 UTC] [Node 4] [check] FAIL claimed wallets are in the order: not in order: 0x4c1f0b2d9e8a7f6c3b5a49d8e7f60a1b2c3d4e5f
+[2026-10-30 17:54:10 UTC] [Node 6] [gemini] type=TRO withoutNotice=false untilFurtherOrder=true expiry="" days=0 wallets=6
+[2026-10-30 17:54:10 UTC] [Node 6] [legal] TRO with notice/consent -> expiresAt=until further order
+[2026-10-30 17:54:10 UTC] [Node 6] [check] PASS order names wallets: 6 restrained wallet(s) found in the official text
+[2026-10-30 17:54:10 UTC] [Node 6] [check] FAIL claimed wallets are in the order: not in order: 0x4c1f0b2d9e8a7f6c3b5a49d8e7f60a1b2c3d4e5f
+[2026-10-30 17:54:10 UTC] [Node 3] [gemini] type=TRO withoutNotice=false untilFurtherOrder=true expiry="" days=0 wallets=6
+[2026-10-30 17:54:10 UTC] [Node 3] [legal] TRO with notice/consent -> expiresAt=until further order
+[2026-10-30 17:54:10 UTC] [Node 3] [check] PASS order names wallets: 6 restrained wallet(s) found in the official text
+[2026-10-30 17:54:10 UTC] [Node 3] [check] FAIL claimed wallets are in the order: not in order: 0x4c1f0b2d9e8a7f6c3b5a49d8e7f60a1b2c3d4e5f
+[2026-10-30 17:54:10 UTC] [Node 10] [gemini] type=TRO withoutNotice=false untilFurtherOrder=true expiry="" days=0 wallets=6
+[2026-10-30 17:54:10 UTC] [Node 10] [legal] TRO with notice/consent -> expiresAt=until further order
+[2026-10-30 17:54:10 UTC] [Node 10] [check] PASS order names wallets: 6 restrained wallet(s) found in the official text
+[2026-10-30 17:54:10 UTC] [Node 10] [check] FAIL claimed wallets are in the order: not in order: 0x4c1f0b2d9e8a7f6c3b5a49d8e7f60a1b2c3d4e5f
+[2026-10-30 17:54:10 UTC] [Node 2] [gemini] type=TRO withoutNotice=false untilFurtherOrder=true expiry="" days=0 wallets=6
+[2026-10-30 17:54:10 UTC] [Node 2] [legal] TRO with notice/consent -> expiresAt=until further order
+[2026-10-30 17:54:10 UTC] [Node 2] [check] PASS order names wallets: 6 restrained wallet(s) found in the official text
+[2026-10-30 17:54:10 UTC] [Node 2] [check] FAIL claimed wallets are in the order: not in order: 0x4c1f0b2d9e8a7f6c3b5a49d8e7f60a1b2c3d4e5f
+[2026-10-30 17:54:10 UTC] [Node 1] [gemini] type=TRO withoutNotice=false untilFurtherOrder=true expiry="" days=0 wallets=6
+[2026-10-30 17:54:10 UTC] [Node 1] [legal] TRO with notice/consent -> expiresAt=until further order
+[2026-10-30 17:54:10 UTC] [Node 1] [check] PASS order names wallets: 6 restrained wallet(s) found in the official text
+[2026-10-30 17:54:10 UTC] [Node 1] [check] FAIL claimed wallets are in the order: not in order: 0x4c1f0b2d9e8a7f6c3b5a49d8e7f60a1b2c3d4e5f
+[2026-10-30 17:54:10 UTC] [Node 7] [gemini] type=TRO withoutNotice=false untilFurtherOrder=true expiry="" days=0 wallets=6
+[2026-10-30 17:54:10 UTC] [Node 7] [legal] TRO with notice/consent -> expiresAt=until further order
+[2026-10-30 17:54:10 UTC] [Node 7] [check] PASS order names wallets: 6 restrained wallet(s) found in the official text
+[2026-10-30 17:54:10 UTC] [Node 7] [check] FAIL claimed wallets are in the order: not in order: 0x4c1f0b2d9e8a7f6c3b5a49d8e7f60a1b2c3d4e5f
+[2026-10-30 17:54:10 UTC] [Node 8] [gemini] type=TRO withoutNotice=false untilFurtherOrder=true expiry="" days=0 wallets=6
+[2026-10-30 17:54:10 UTC] [Node 8] [legal] TRO with notice/consent -> expiresAt=until further order
+[2026-10-30 17:54:10 UTC] [Node 8] [check] PASS order names wallets: 6 restrained wallet(s) found in the official text
+[2026-10-30 17:54:10 UTC] [Node 8] [check] FAIL claimed wallets are in the order: not in order: 0x4c1f0b2d9e8a7f6c3b5a49d8e7f60a1b2c3d4e5f
+[2026-10-30 17:54:12 UTC] [Node 2] [report] DON-signed report (ecdsa, keccak256) over 544 bytes -> writeReport to 0xC0efC2d0B41Bbcb9d26C7F4F32678a247E15a202
+[2026-10-30 17:54:12 UTC] [Node 1] [report] DON-signed report (ecdsa, keccak256) over 544 bytes -> writeReport to 0xC0efC2d0B41Bbcb9d26C7F4F32678a247E15a202
+[2026-10-30 17:54:12 UTC] [Node 7] [report] DON-signed report (ecdsa, keccak256) over 544 bytes -> writeReport to 0xC0efC2d0B41Bbcb9d26C7F4F32678a247E15a202
+[2026-10-30 17:54:12 UTC] [Node 6] [report] DON-signed report (ecdsa, keccak256) over 544 bytes -> writeReport to 0xC0efC2d0B41Bbcb9d26C7F4F32678a247E15a202
+[2026-10-30 17:54:12 UTC] [Node 4] [report] DON-signed report (ecdsa, keccak256) over 544 bytes -> writeReport to 0xC0efC2d0B41Bbcb9d26C7F4F32678a247E15a202
+[2026-10-30 17:54:12 UTC] [Node 5] [report] DON-signed report (ecdsa, keccak256) over 544 bytes -> writeReport to 0xC0efC2d0B41Bbcb9d26C7F4F32678a247E15a202
+[2026-10-30 17:54:12 UTC] [Node 3] [report] DON-signed report (ecdsa, keccak256) over 544 bytes -> writeReport to 0xC0efC2d0B41Bbcb9d26C7F4F32678a247E15a202
+[2026-10-30 17:54:12 UTC] [Node 9] [report] DON-signed report (ecdsa, keccak256) over 544 bytes -> writeReport to 0xC0efC2d0B41Bbcb9d26C7F4F32678a247E15a202
+[2026-10-30 17:54:12 UTC] [Node 10] [report] DON-signed report (ecdsa, keccak256) over 544 bytes -> writeReport to 0xC0efC2d0B41Bbcb9d26C7F4F32678a247E15a202
+[2026-10-30 17:54:12 UTC] [Node 8] [report] DON-signed report (ecdsa, keccak256) over 544 bytes -> writeReport to 0xC0efC2d0B41Bbcb9d26C7F4F32678a247E15a202
+[2026-10-30 17:54:26 UTC] [Node 2] [verify] REJECTED submission 0x65bdf2f487b170f0abaceb3b8727340b7ca95845ebde0f3f319aa3b41fd15528: HashMismatch, WalletNotInOrder tx=0xbb5a73dac84c6705e4ef14521e16959dfe81e409f728809ba3d93445a66f5217
+[2026-10-30 17:54:26 UTC] [Node 1] [verify] REJECTED submission 0x65bdf2f487b170f0abaceb3b8727340b7ca95845ebde0f3f319aa3b41fd15528: HashMismatch, WalletNotInOrder tx=0xbb5a73dac84c6705e4ef14521e16959dfe81e409f728809ba3d93445a66f5217
+[2026-10-30 17:54:26 UTC] [Node 8] [verify] REJECTED submission 0x65bdf2f487b170f0abaceb3b8727340b7ca95845ebde0f3f319aa3b41fd15528: HashMismatch, WalletNotInOrder tx=0xbb5a73dac84c6705e4ef14521e16959dfe81e409f728809ba3d93445a66f5217
+[2026-10-30 17:54:26 UTC] [Node 9] [verify] REJECTED submission 0x65bdf2f487b170f0abaceb3b8727340b7ca95845ebde0f3f319aa3b41fd15528: HashMismatch, WalletNotInOrder tx=0xbb5a73dac84c6705e4ef14521e16959dfe81e409f728809ba3d93445a66f5217
+[2026-10-30 17:54:26 UTC] [Node 10] [verify] REJECTED submission 0x65bdf2f487b170f0abaceb3b8727340b7ca95845ebde0f3f319aa3b41fd15528: HashMismatch, WalletNotInOrder tx=0xbb5a73dac84c6705e4ef14521e16959dfe81e409f728809ba3d93445a66f5217
+[2026-10-30 17:54:26 UTC] [Node 4] [verify] REJECTED submission 0x65bdf2f487b170f0abaceb3b8727340b7ca95845ebde0f3f319aa3b41fd15528: HashMismatch, WalletNotInOrder tx=0xbb5a73dac84c6705e4ef14521e16959dfe81e409f728809ba3d93445a66f5217
+[2026-10-30 17:54:26 UTC] [Node 6] [verify] REJECTED submission 0x65bdf2f487b170f0abaceb3b8727340b7ca95845ebde0f3f319aa3b41fd15528: HashMismatch, WalletNotInOrder tx=0xbb5a73dac84c6705e4ef14521e16959dfe81e409f728809ba3d93445a66f5217
+[2026-10-30 17:54:26 UTC] [Node 3] [verify] REJECTED submission 0x65bdf2f487b170f0abaceb3b8727340b7ca95845ebde0f3f319aa3b41fd15528: HashMismatch, WalletNotInOrder tx=0xbb5a73dac84c6705e4ef14521e16959dfe81e409f728809ba3d93445a66f5217
+[2026-10-30 17:54:26 UTC] [Node 5] [verify] REJECTED submission 0x65bdf2f487b170f0abaceb3b8727340b7ca95845ebde0f3f319aa3b41fd15528: HashMismatch, WalletNotInOrder tx=0xbb5a73dac84c6705e4ef14521e16959dfe81e409f728809ba3d93445a66f5217
+[2026-10-30 17:54:26 UTC] [Node 7] [verify] REJECTED submission 0x65bdf2f487b170f0abaceb3b8727340b7ca95845ebde0f3f319aa3b41fd15528: HashMismatch, WalletNotInOrder tx=0xbb5a73dac84c6705e4ef14521e16959dfe81e409f728809ba3d93445a66f5217
+
+# cre execution events <id>
+ 
+Fetching execution events...
+
+Events
+
+1. trigger
+     Method:    -
+     Status:    success
+     Started:   2026-10-30 17:53:49 UTC
+     Duration:  0ms
+
+2. http-actions@1.0.0-alpha
+     Method:    SendRequest
+     Status:    success
+     Started:   2026-10-30 17:54:08 UTC
+     Duration:  1s
+
+3. http-actions@1.0.0-alpha
+     Method:    SendRequest
+     Status:    success
+     Started:   2026-10-30 17:54:06 UTC
+     Duration:  2s
+
+4. http-actions@1.0.0-alpha
+     Method:    SendRequest
+     Status:    success
+     Started:   2026-10-30 17:54:00 UTC
+     Duration:  1s
+
+5. http-actions@1.0.0-alpha
+     Method:    SendRequest
+     Status:    success
+     Started:   2026-10-30 17:53:58 UTC
+     Duration:  1s
+
+6. evm:ChainSelector:16015286601757825753@1.0.0
+     Method:    CallContract
+     Status:    success
+     Started:   2026-10-30 17:53:53 UTC
+     Duration:  2s
+
+7. consensus@1.0.0-alpha
+     Method:    Simple
+     Status:    success
+     Started:   2026-10-30 17:53:59 UTC
+     Duration:  1s
+
+8. consensus@1.0.0-alpha
+     Method:    Simple
+     Status:    success
+     Started:   2026-10-30 17:54:02 UTC
+     Duration:  1s
+
+9. consensus@1.0.0-alpha
+     Method:    Simple
+     Status:    success
+     Started:   2026-10-30 17:54:09 UTC
+     Duration:  1s
+
+10. consensus@1.0.0-alpha
+     Method:    Report
+     Status:    success
+     Started:   2026-10-30 17:54:11 UTC
+     Duration:  1s
+
+11. evm:ChainSelector:16015286601757825753@1.0.0
+     Method:    WriteReport
+     Status:    success
+     Started:   2026-10-30 17:54:12 UTC
+     Duration:  14s
+
+
+
