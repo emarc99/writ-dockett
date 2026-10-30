@@ -3,7 +3,12 @@
     "chainId":  11155111,
     "orderRegistry":  "0xC0efC2d0B41Bbcb9d26C7F4F32678a247E15a202",
     "writToken":  "0x4d0DF1DF351d3035A9AEa82cc34Fc4d4C5e30e5f",
-    "forwarder":  "0x15fC6ae953E024d975e77382eEeC56A9101f9F88",
+    "forwarder":  "0xF8344CFd5c43616a4366C34E3EEE75af79a74482",
+    "simulationForwarder":  "0x15fC6ae953E024d975e77382eEeC56A9101f9F88",
+    "workflowName":  "writ-staging",
+    "workflowId":  "0003deda6ecfece148ff7945bb31e211c619562c9c5527ccbf72e67b7478e7f3",
+    "workflowOwner":  "0x1F16F1d733D365B1a1E43B104BA67Ec763028627",
+    "httpAuthorizedKey":  "0xb8AD2787f447e04E8D66D7e888Dd48fB68DdedB7",
     "deployer":  "0xb8AD2787f447e04E8D66D7e888Dd48fB68DdedB7",
     "deployedAt":  "2026-10-30T16:41:50.6022576Z",
     "fromBlock":  12027500
