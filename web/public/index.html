@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Writ · court-order-gated stablecoin freezes</title>
+	<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+	<header>
+		<div class="brand">
+			<h1>Writ</h1>
+			<p>Freeze a wallet only when a real court order says so, and only for as long as it says so.</p>
+		</div>
+		<div class="chain" id="chain">Sepolia</div>
+	</header>
+
+	<main>
+		<section class="card" id="submit-card">
+			<h2>1 · Submit a court order</h2>
+			<p class="muted">The PDF never leaves your browser: only its SHA-1 is sent. Chainlink CRE checks it against the court's copy on the federal docket (CourtListener / RECAP).</p>
+			<div class="presets">
+				<button type="button" data-preset="genuine">Load genuine ECF 18</button>
+				<button type="button" data-preset="forged" class="danger-outline">Load forged ECF 18</button>
+			</div>
+			<form id="form">
+				<div class="row">
+					<label>Court <input name="court" value="cand" required /></label>
+					<label>Docket number <input name="docketNumber" value="5:26-cv-05055" required /></label>
+					<label class="narrow">ECF entry <input name="entryNumber" type="number" min="1" value="18" required /></label>
+					<label>Filed <input name="filedDate" type="date" /></label>
+				</div>
+				<label>Order PDF <input name="pdf" type="file" accept="application/pdf" /></label>
+				<div class="sha" id="sha">SHA-1: <code>—</code></div>
+				<label>Wallets the order freezes <span class="muted">(one per line; leave empty to freeze every wallet the order names)</span>
+					<textarea name="wallets" rows="6" spellcheck="false"></textarea>
+				</label>
+				<button type="submit" class="primary" id="verify-btn">Verify with Chainlink CRE</button>
+			</form>
+
+			<div id="result" class="result hidden"></div>
+			<ol id="checks" class="checks"></ol>
+			<details><summary>Workflow log</summary><pre id="log"></pre></details>
+		</section>
+
+		<section class="card" id="state-card">
+			<div class="card-head">
+				<h2>2 · On-chain state</h2>
+				<button type="button" id="refresh">Refresh</button>
+			</div>
+			<p class="muted" id="contracts"></p>
+			<div id="orders"></div>
+
+			<h3>Rejected submissions</h3>
+			<div id="rejections" class="muted">—</div>
+
+			<h3>Check any wallet</h3>
+			<div class="row">
+				<input id="probe" placeholder="0x…" spellcheck="false" />
+				<button type="button" id="probe-btn">Try a wUSD transfer</button>
+			</div>
+			<div id="probe-out" class="muted"></div>
+		</section>
+
+		<section class="card" id="sweep-card">
+			<h2>3 · Docket sweep</h2>
+			<p class="muted">The cron trigger re-reads each active order's docket. When the court dissolves, supersedes or extends the order, or a 14-day ex parte TRO runs out (Fed. R. Civ. P. 65(b)(2)), the freeze lifts on its own.</p>
+			<button type="button" id="sweep-btn" class="primary">Run sweep now</button>
+			<ol id="sweep-checks" class="checks"></ol>
+			<details><summary>Sweep log</summary><pre id="sweep-log"></pre></details>
+		</section>
+	</main>
+
+	<footer>Demo on Sepolia with test tokens. Not legal advice; issuers keep a human override for sealed or disputed orders.</footer>
+	<script type="module" src="/app.js"></script>
+</body>
+</html>
