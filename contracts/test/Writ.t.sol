@@ -4,7 +4,7 @@ pragma solidity 0.8.26;
 import {Test} from "forge-std/Test.sol";
 import {OrderRegistry} from "../src/OrderRegistry.sol";
 import {WritToken, IFreezeOracle} from "../src/WritToken.sol";
-import {ReceiverTemplate} from "../src/interfaces/ReceiverTemplate.sol";
+import {CREReceiver} from "../src/interfaces/CREReceiver.sol";
 
 contract WritTest is Test {
     OrderRegistry registry;
@@ -21,6 +21,7 @@ contract WritTest is Test {
 
     string constant COURT = "cand";
     string constant DOCKET = "5:26-cv-05055";
+    string constant DOCKET_REF = "cand|5:26-cv-05055";
     bytes20 constant GENUINE_SHA1 = bytes20(hex"ec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd");
     bytes20 constant FORGED_SHA1 = bytes20(hex"a40c167938d56e15f8959675bb5c7e46dda1bdea");
     bytes20 constant DISSOLVE_SHA1 = bytes20(hex"26009af814db8255e8f3a51d8f709717b8255c0d");
@@ -37,6 +38,18 @@ contract WritTest is Test {
 
     // ---------------------------------------------------------------- helpers
 
+    /// @dev Same derivation as the workflows: keccak256(abi.encode(court, docketNumber, entry)).
+    function _id(uint32 entry) internal pure returns (bytes32) {
+        return keccak256(abi.encode(COURT, DOCKET, entry));
+    }
+
+    function _activeCount() internal view returns (uint256 n) {
+        bytes32[] memory ids = registry.getOrderIds();
+        for (uint256 i; i < ids.length; ++i) {
+            if (registry.getOrder(ids[i]).status == OrderRegistry.Status.Active) ++n;
+        }
+    }
+
     function _wallets() internal pure returns (address[] memory w) {
         w = new address[](3);
         w[0] = W1;
@@ -51,8 +64,7 @@ contract WritTest is Test {
     {
         OrderRegistry.AttestReport memory r = OrderRegistry.AttestReport({
             id: id,
-            court: COURT,
-            docketNumber: DOCKET,
+            docketRef: DOCKET_REF,
             entryNumber: entry,
             docSha1: GENUINE_SHA1,
             orderType: OrderRegistry.OrderType.TRO,
@@ -87,15 +99,15 @@ contract WritTest is Test {
     }
 
     function _attestConsentTro() internal returns (bytes32 id) {
-        id = registry.orderIdFor(COURT, DOCKET, 18);
+        id = _id(18);
         _deliver(_attestReport(id, 18, false, 0, _wallets()));
     }
 
     // ---------------------------------------------------------------- access control
 
     function test_onlyForwarderCanReport() public {
-        bytes32 id = registry.orderIdFor(COURT, DOCKET, 18);
-        vm.expectRevert(abi.encodeWithSelector(ReceiverTemplate.InvalidSender.selector, alice, forwarder));
+        bytes32 id = _id(18);
+        vm.expectRevert(abi.encodeWithSelector(CREReceiver.InvalidSender.selector, alice, forwarder));
         vm.prank(alice);
         registry.onReport("", _attestReport(id, 18, false, 0, _wallets()));
     }
@@ -137,7 +149,7 @@ contract WritTest is Test {
     }
 
     function test_attestWithoutWalletsReverts() public {
-        bytes32 id = registry.orderIdFor(COURT, DOCKET, 18);
+        bytes32 id = _id(18);
         vm.prank(forwarder);
         vm.expectRevert(OrderRegistry.NoWallets.selector);
         registry.onReport("", _attestReport(id, 18, false, 0, new address[](0)));
@@ -149,12 +161,11 @@ contract WritTest is Test {
         address[] memory claimed = _wallets();
         claimed[2] = ATTACKER;
         bytes32 submissionId = keccak256("forged-submission");
-        uint32 reasons = registry.R_HASH_MISMATCH() | registry.R_WALLET_NOT_IN_ORDER();
+        uint32 reasons = 8 | 16; // hash mismatch | wallet not in order
 
         OrderRegistry.AttestReport memory r = OrderRegistry.AttestReport({
             id: submissionId,
-            court: COURT,
-            docketNumber: DOCKET,
+            docketRef: DOCKET_REF,
             entryNumber: 18,
             docSha1: FORGED_SHA1,
             orderType: OrderRegistry.OrderType.TRO,
@@ -168,7 +179,7 @@ contract WritTest is Test {
 
         assertEq(registry.rejections(submissionId), reasons);
         assertEq(registry.rejectionCount(), 1);
-        assertEq(registry.orderCount(), 0);
+        assertEq(registry.getOrderIds().length, 0);
         assertFalse(registry.isFrozen(ATTACKER));
         assertFalse(registry.isFrozen(W1));
 
@@ -180,7 +191,7 @@ contract WritTest is Test {
     // ---------------------------------------------------------------- Rule 65(b)(2)
 
     function test_exParteTroAutoExpiresAfter14DaysWithoutAnyTransaction() public {
-        bytes32 id = registry.orderIdFor(COURT, DOCKET, 6);
+        bytes32 id = _id(6);
         uint64 expiresAt = JUNE_5_2026 + 14 days;
         _deliver(_attestReport(id, 6, true, expiresAt, _wallets()));
         assertTrue(registry.isFrozen(W1));
@@ -197,7 +208,7 @@ contract WritTest is Test {
     }
 
     function test_extensionKeepsFreezeAlive() public {
-        bytes32 id = registry.orderIdFor(COURT, DOCKET, 6);
+        bytes32 id = _id(6);
         uint64 expiresAt = JUNE_5_2026 + 14 days;
         _deliver(_attestReport(id, 6, true, expiresAt, _wallets()));
 
@@ -215,20 +226,20 @@ contract WritTest is Test {
     }
 
     function test_sweepCanMarkTimeExpiredOrder() public {
-        bytes32 id = registry.orderIdFor(COURT, DOCKET, 6);
+        bytes32 id = _id(6);
         _deliver(_attestReport(id, 6, true, JUNE_5_2026 + 14 days, _wallets()));
         vm.warp(JUNE_5_2026 + 15 days);
 
         _deliver(_statusReport(id, OrderRegistry.Status.Expired, 0, 6, bytes20(0)));
         assertEq(uint8(registry.getOrder(id).status), uint8(OrderRegistry.Status.Expired));
-        assertEq(registry.getActiveOrderIds().length, 0);
+        assertEq(_activeCount(), 0);
     }
 
     // ---------------------------------------------------------------- dissolution
 
     function test_dissolutionUnfreezesAndRecordsEvidence() public {
         bytes32 id = _attestConsentTro();
-        assertEq(registry.getActiveOrderIds().length, 1);
+        assertEq(_activeCount(), 1);
 
         _deliver(_statusReport(id, OrderRegistry.Status.Dissolved, 0, 38, DISSOLVE_SHA1));
 
@@ -238,7 +249,7 @@ contract WritTest is Test {
         assertEq(o.evidenceEntry, 38);
         assertEq(o.evidenceSha1, DISSOLVE_SHA1);
         assertEq(o.lastCheckedEntry, 38);
-        assertEq(registry.getActiveOrderIds().length, 0);
+        assertEq(_activeCount(), 0);
 
         vm.prank(alice);
         token.transfer(W1, 1e6);
@@ -258,7 +269,7 @@ contract WritTest is Test {
     function test_unknownOrderUpdateReverts() public {
         bytes32 id = keccak256("nope");
         vm.prank(forwarder);
-        vm.expectRevert(abi.encodeWithSelector(OrderRegistry.UnknownOrder.selector, id));
+        vm.expectRevert(abi.encodeWithSelector(OrderRegistry.OrderNotActive.selector, id));
         registry.onReport("", _statusReport(id, OrderRegistry.Status.Dissolved, 0, 38, DISSOLVE_SHA1));
     }
 
@@ -266,7 +277,7 @@ contract WritTest is Test {
         bytes32 a = _attestConsentTro();
         address[] memory onlyW1 = new address[](1);
         onlyW1[0] = W1;
-        bytes32 b = registry.orderIdFor(COURT, DOCKET, 51);
+        bytes32 b = _id(51);
         _deliver(_attestReport(b, 51, false, 0, onlyW1));
 
         _deliver(_statusReport(a, OrderRegistry.Status.Dissolved, 0, 38, DISSOLVE_SHA1));
@@ -299,18 +310,12 @@ contract WritTest is Test {
     function test_ownerOverrideIsAudited() public {
         bytes32 id = _attestConsentTro();
         vm.expectEmit(true, false, false, true);
-        emit OrderRegistry.HumanOverride(
-            id, OrderRegistry.Status.Active, OrderRegistry.Status.Dissolved, "court clerk confirmed dissolution"
-        );
+        emit OrderRegistry.HumanOverride(id, OrderRegistry.Status.Dissolved, "court clerk confirmed dissolution");
         registry.overrideStatus(id, OrderRegistry.Status.Dissolved, "court clerk confirmed dissolution");
         assertFalse(registry.isFrozen(W1));
 
         vm.prank(alice);
         vm.expectRevert();
         registry.overrideStatus(id, OrderRegistry.Status.Active, "nope");
-    }
-
-    function test_orderIdMatchesOffchainEncoding() public view {
-        assertEq(registry.orderIdFor(COURT, DOCKET, 18), keccak256(abi.encode(COURT, DOCKET, uint32(18))));
     }
 }
