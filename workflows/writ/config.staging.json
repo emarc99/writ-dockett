@@ -7,5 +7,5 @@
   "sweepSchedule": "0 0 */6 * * *",
   "maxOrdersScanned": 10,
   "maxOrdersSwept": 2,
-  "httpAuthorizedKey": ""
+  "httpAuthorizedKey": "0xb8AD2787f447e04E8D66D7e888Dd48fB68DdedB7"
 }

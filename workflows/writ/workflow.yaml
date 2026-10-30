@@ -1,6 +1,8 @@
 staging-settings:
   user-workflow:
     workflow-name: "writ-staging"
+    # Chainlink-hosted private registry: managed with the CRE login session, no mainnet gas
+    deployment-registry: "private"
   workflow-artifacts:
     workflow-path: "./main.ts"
     config-path: "./config.staging.json"
@@ -9,6 +11,7 @@ staging-settings:
 production-settings:
   user-workflow:
     workflow-name: "writ-production"
+    deployment-registry: "private"
   workflow-artifacts:
     workflow-path: "./main.ts"
     config-path: "./config.staging.json"
