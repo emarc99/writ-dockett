@@ -1,6 +1,6 @@
 {
   "chainSelectorName": "ethereum-testnet-sepolia",
-  "registryAddress": "0x8571a085658dD50BE042a22cDE79963ce3b41d6e",
+  "registryAddress": "0x90eC926CE8b41568Ea5D8e1046a33dB4F195A44F",
   "gasLimit": "5000000",
   "courtListenerBaseUrl": "https://www.courtlistener.com/api/rest/v4",
   "geminiModels": ["gemini-3.5-flash", "gemini-3.1-flash-lite"],
