@@ -1,4 +1,4 @@
-import type { CronPayload, Runtime } from '@chainlink/cre-sdk'
+import type { Runtime } from '@chainlink/cre-sdk'
 import type { Hex } from 'viem'
 import type { Config } from './config'
 import { fetchEntriesAfter, lookupDocket } from './courtlistener'
@@ -17,11 +17,12 @@ function describe(o: OnchainOrder): string {
 }
 
 /**
- * Cron trigger: for every Active order, read the docket entries filed since the last check, let
- * Gemini spot a later order that dissolves, supersedes or extends it, and write the new status.
- * Orders whose fixed term has run out are marked Expired (they already stopped freezing on-chain).
+ * Cron trigger (or an authorized on-demand HTTP request): for every Active order, read the docket
+ * entries filed since the last check, let Gemini spot a later order that dissolves, supersedes or
+ * extends it, and write the new status. Orders whose fixed term has run out are marked Expired
+ * (they already stopped freezing on-chain).
  */
-export function onSweep(runtime: Runtime<Config>, _trigger: CronPayload): string {
+export function onSweep(runtime: Runtime<Config>): string {
 	const cfg = runtime.config
 	const ids = readOrderIds(runtime).slice(-cfg.maxOrdersScanned)
 	const active: { id: Hex; order: OnchainOrder }[] = []
