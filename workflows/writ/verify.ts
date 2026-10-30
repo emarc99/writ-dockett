@@ -34,8 +34,10 @@ export function onVerify(runtime: Runtime<Config>, payload: HTTPPayload): string
 	const claimed = sub.wallets.map((w) => w.trim().toLowerCase())
 
 	runtime.log(`[verify] ${docketRef} ECF ${sub.entryNumber} sha1=${submittedSha1} claimed=${claimed.length} wallet(s)`)
+	runtime.log(`[identity] trigger signer: ${payload.key?.publicKey || 'none (local simulation; set httpAuthorizedKey when deployed)'}`)
 
 	const existing = readOrder(runtime, id)
+	runtime.log(`[chain] OrderRegistry.getOrder(${id}) at finalized block: status=${Status[existing.status]}`)
 	if (existing.status !== Status.None && existing.docSha1.toLowerCase() === submittedSha1) {
 		runtime.log(`[verify] order ${id} already recorded with status ${Status[existing.status]}; nothing to write`)
 		return JSON.stringify({ decision: 'ALREADY_RECORDED', orderId: id, status: Status[existing.status] })

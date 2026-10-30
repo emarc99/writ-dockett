@@ -104,7 +104,7 @@ async function runWorkflow(url, body, { log, checks, onResult }) {
 			}
 			if (line.includes('Workflow Simulation Result')) nextIsResult = true
 			if (/workflow execution failed/i.test(line)) onResult({ decision: 'ERROR', error: line })
-			const m = /\[USER LOG\] \[(check|gemini|legal|sweep)\] (?:(PASS|FAIL) )?([^:]+?)(?:: (.*))?$/.exec(line)
+			const m = /\[USER LOG\] \[(check|gemini|legal|sweep|chain|identity|report)\] (?:(PASS|FAIL) )?([^:]+?)(?:: (.*))?$/.exec(line)
 			if (m) {
 				const [, kind, verdict, name, detail] = m
 				const li = document.createElement('li')

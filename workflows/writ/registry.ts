@@ -173,6 +173,7 @@ export function readOrder(runtime: Runtime<Config>, id: Hex): OnchainOrder {
 /** Signs `payload` with the DON and delivers it to OrderRegistry.onReport via the forwarder. */
 export function submitReport(runtime: Runtime<Config>, payload: Hex): Hex {
 	const report = runtime.report(prepareReportRequest(payload)).result()
+	runtime.log(`[report] DON-signed report (ecdsa, keccak256) over ${(payload.length - 2) / 2} bytes -> writeReport to ${runtime.config.registryAddress}`)
 	const res = evmClient(runtime.config)
 		.writeReport(runtime, {
 			receiver: runtime.config.registryAddress,

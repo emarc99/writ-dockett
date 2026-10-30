@@ -29,7 +29,7 @@ export function onSweep(runtime: Runtime<Config>, _trigger: CronPayload): string
 		const order = readOrder(runtime, id)
 		if (order.status === Status.Active) active.push({ id, order })
 	}
-	runtime.log(`[sweep] ${ids.length} order(s) scanned, ${active.length} active`)
+	runtime.log(`[chain] OrderRegistry.getOrderIds() + ${ids.length}x getOrder() at finalized block: ${active.length} active`)
 	if (active.length === 0) return JSON.stringify({ swept: 0, updates: [] })
 
 	const token = runtime.getSecret({ id: 'COURTLISTENER_TOKEN' }).result().value
