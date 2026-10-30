@@ -1,0 +1,18 @@
+﻿Loading settings...
+Checking RPC connectivity...
+Compiling workflow...
+✓ Workflow compiled
+✓ Simulation limits enabled
+  HTTP: req=120kb resp=250kb timeout=10s | ConfHTTP: req=125kb resp=500kb timeout=1m30s | Consensus obs=25kb | ChainWrite evm_report=50kb evm_gas=10000000 solana_report=265b solana_cu=300000 | WASM binary=100mb compressed=20mb
+  Binary hash: b35678454ac3905ab5a3a85d0076ec196f5be17c46ae2f8c310079ea5a3212c7
+  Config hash: 3ecdf94a27037afff78e7841bcf8978bd5e0f1d4d663fdae6b00027196c9dce4
+2026-10-30T18:26:49Z [SIMULATION] Simulator Initialized
+2026-10-30T18:26:49Z [SIMULATION] Running trigger trigger=cron-trigger@1.0.0
+2026-10-30T18:26:49Z [USER LOG] [sweep] 1 order(s) scanned, 1 active
+2026-10-30T18:26:54Z [USER LOG] [sweep] cand|5:26-cv-05055: 20 new entr(ies) after ECF 18, 3 look like orders (more pages pending)
+2026-10-30T18:26:56Z [USER LOG] [gemini] effect=DISSOLVED entry=38 The court's order denying the motion for a preliminary injunction dissolved the temporary restraining order that was entered pending that motion.
+2026-10-30T18:27:13Z [USER LOG] [sweep] 0xfef489dd27a7f151ec7c5387f06c07a251744e8de0407b176543865b39505741: DISSOLVED evidence=ECF 38 lastChecked=38 tx=0xfcdf44f5df1381f3ca4c9d7ad7ab98a5aeb000c850a66d04221c695766b7e4a8
+✓ Workflow Simulation Result:
+"{\"swept\":1,\"updates\":[{\"orderId\":\"0xfef489dd27a7f151ec7c5387f06c07a251744e8de0407b176543865b39505741\",\"result\":\"DISSOLVED\",\"evidenceEntry\":38,\"newExpiresAt\":0,\"txHash\":\"0xfcdf44f5df1381f3ca4c9d7ad7ab98a5aeb000c850a66d04221c695766b7e4a8\"}]}"
+2026-10-30T18:27:13Z [SIMULATION] Execution finished signal received
+2026-10-30T18:27:13Z [SIMULATION] Skipping WorkflowEngineV2

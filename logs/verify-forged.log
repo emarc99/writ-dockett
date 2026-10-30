@@ -1,0 +1,27 @@
+﻿Loading settings...
+Checking RPC connectivity...
+Compiling workflow...
+✓ Workflow compiled
+✓ Simulation limits enabled
+  HTTP: req=120kb resp=250kb timeout=10s | ConfHTTP: req=125kb resp=500kb timeout=1m30s | Consensus obs=25kb | ChainWrite evm_report=50kb evm_gas=10000000 solana_report=265b solana_cu=300000 | WASM binary=100mb compressed=20mb
+  Binary hash: 97f272505cc12474b6121de3a607a29df88cd7bd0c494b4ea65a3407cc5dd4d1
+  Config hash: 38a819eca9975c7defa71e71f2ba0ea6c18d4a2de357ab585ab68a1a7841e43e
+✓ Loaded JSON from file: C:\Users\LENOVO\Documents\dorahacks\writ-bli-2026\payloads\forged.json
+✓ Created HTTP trigger payload with 6 fields
+2026-10-30T18:08:46Z [SIMULATION] Simulator Initialized
+2026-10-30T18:08:46Z [SIMULATION] Running trigger trigger=http-trigger@1.0.0-alpha
+2026-10-30T18:08:47Z [USER LOG] [verify] cand|5:26-cv-05055 ECF 18 sha1=0xa40c167938d56e15f8959675bb5c7e46dda1bdea claimed=6 wallet(s)
+2026-10-30T18:08:48Z [USER LOG] [check] PASS docket exists: Newton AC/DC Fund, L.P. v. Ermilov (CourtListener #73408471)
+2026-10-30T18:08:49Z [USER LOG] [check] PASS entry exists: ECF 18 filed 2026-06-05
+2026-10-30T18:08:49Z [USER LOG] [check] PASS is a court order: STIPULATED CONSENT TEMPORARY RESTRAINING ORDER, AS MODIFIED. Signed by Judge P. Casey Pitts.(lrt, COURT STAFF) (Filed on
+2026-10-30T18:08:49Z [USER LOG] [check] FAIL document hash: court PDF sha1=0xec485c6c5b714a2f1f7c3c365a2835a0e5d7b8bd submitted=0xa40c167938d56e15f8959675bb5c7e46dda1bdea
+2026-10-30T18:08:49Z [USER LOG] [check] PASS filing date: docket=2026-06-05 submitted=2026-06-05
+2026-10-30T18:08:52Z [USER LOG] [gemini] type=TRO withoutNotice=false untilFurtherOrder=true expiry="" days=0 wallets=6
+2026-10-30T18:08:52Z [USER LOG] [legal] TRO with notice/consent -> expiresAt=until further order
+2026-10-30T18:08:52Z [USER LOG] [check] PASS order names wallets: 6 restrained wallet(s) found in the official text
+2026-10-30T18:08:52Z [USER LOG] [check] FAIL claimed wallets are in the order: not in order: 0x4c1f0b2d9e8a7f6c3b5a49d8e7f60a1b2c3d4e5f
+2026-10-30T18:09:01Z [USER LOG] [verify] REJECTED submission 0x65bdf2f487b170f0abaceb3b8727340b7ca95845ebde0f3f319aa3b41fd15528: HashMismatch, WalletNotInOrder tx=0xa5f819c77b9c3e5d6f2095b44493f68b2a886004d66dcad3ae4f05ed8203d889
+✓ Workflow Simulation Result:
+"{\"decision\":\"REJECTED\",\"submissionId\":\"0x65bdf2f487b170f0abaceb3b8727340b7ca95845ebde0f3f319aa3b41fd15528\",\"reasons\":24,\"labels\":[\"HashMismatch\",\"WalletNotInOrder\"],\"txHash\":\"0xa5f819c77b9c3e5d6f2095b44493f68b2a886004d66dcad3ae4f05ed8203d889\"}"
+2026-10-30T18:09:01Z [SIMULATION] Execution finished signal received
+2026-10-30T18:09:01Z [SIMULATION] Skipping WorkflowEngineV2
