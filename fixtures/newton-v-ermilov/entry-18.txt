@@ -1,0 +1,171 @@
+     Case 5:26-cv-05055-PCP               Document 18       Filed 06/05/26   Page 1 of 3
+
+
+ 1                             UNITED STATES DISTRICT COURT
+                            NORTHERN DISTRICT OF CALIFORNIA
+ 2
+
+ 3   Newton AC/DC Fund, L.P., Patagon
+     Management LLC, and Scallion Trading Ltd.,
+ 4   on behalf of all other similarly situated
+     Plaintiffs,
+ 5                                                          Civil Action No. 5:26-cv-05055-PCP
+                            Plaintiffs,
+ 6                    v.
+
+ 7   Maxim Ermilov,
+
+ 8                          Defendant,
+
+ 9                    and
+
+10   Circle Internet Financial, LLC,
+
+11                          Relief Defendant.
+
+12
+                              STIPULATED CONSENT TEMPORARY
+13                            RESTRAINING ORDER, AS MODIFIED
+14   Plaintiffs Newton AC/DC Fund, L.P. (the “Fund”), Patagon Management LLC (“Patagon”),
+15
+     Scallion Trading Ltd. (“Scallion,” and together with the Fund and Patagon, the “Named
+16
+     Plaintiffs”), individually and on behalf of all other similarly situated class members, have
+17
+     filed a complaint, asserting claims against Maxim Ermilov for fraudulent transfer under the
+18
+
+19   California Uniform Voidable Transfers Act and breach of contract.
+
+20
+
+21   The Named Plaintiffs have applied ex parte for an emergency temporary restraining order and
+22   an order to show cause why a preliminary injunction should not issue under Fed. R. Civ. P.
+23
+     65(b) and Rule 65-1 of the Local Rules for the Northern District of California.
+24
+
+25
+     AND NOW, on this 5th day of June 2026, pursuant to the agreement of the Named Plaintiffs and
+26
+
+27   Defendant Maxim Ermilov, by counsel, IT IS HEREBY ORDERED that,
+
+28
+
+                                                        1
+     Case 5:26-cv-05055-PCP              Document 18       Filed 06/05/26        Page 2 of 3
+
+
+ 1   I.     Ermilov represents that he has transferred $12,492,464.27 in USDC from the Zama
+ 2          protocol     to   the   to   the   following   wallet   identified     in   the    Complaint:
+ 3
+            0x9030D5C596d636eEFC8f0ad7b2788AE7E9ef3D46.
+ 4
+     II.    Until further order of this Court, Ermilov, and anyone acting in concert with him, are
+ 5
+            enjoined, anywhere in the world, from taking any action to transfer any assets from the
+ 6
+
+ 7          following cryptocurrency wallets:
+
+ 8                  ●         0xf7fcc767de537953b3519d4b3097a24a6dfe1c84;
+
+ 9                  ●         0x898137400867603e6d713cbd40881dd0c79e47cb;
+10                  ●         0xf02d9f19060ee2dd50047dc6e1e9ebac9ba436fe;
+11
+                    ●         0x784cf4b62655486b405eb76731885cc9ed56f42f;
+12
+                    ●         0xe497285e466227f4e8648209e34b465daa1f90a0; and
+13
+                    ●         0x9030d5c596d636eefc8f0ad7b2788ae7e9ef3d46.
+14
+
+15   III.   The Named Plaintiffs are not required to give an undertaking while this Order remains
+
+16          in effect.
+
+17   IV.    The parties’ agreement and stipulation to entry of this Order is not and shall not be
+18
+            deemed an admission of any fact or allegation by either party or that either party is acting
+19
+            or has acted improperly or unlawfully, and each party reserves and preserves all of its
+20
+            respective rights, claims, and defenses, including but not limited to all jurisdictional
+21
+            defenses, without limitation.
+22
+
+23   V.     The Named Plaintiffs shall file a renewed motion for preliminary injunction (the
+
+24          “Renewed PI Motion”) on or before June 5, 2026.
+25   VI.    Answering papers, if any, shall be filed on or before June 12, 2026.
+26
+     VII. Reply papers, if any, shall be filed on or before June 18, 2026.
+27
+
+28
+
+
+
+                                                       2
+     Case 5:26-cv-05055-PCP         Document 18         Filed 06/05/26    Page 3 of 3
+
+
+ 1   VIII. The Court will hold a consolidated hearing and trial on the Renewed PI Motion on July
+ 2         14, 2026 at 2:00pm. The hearing shall be in-person in Courtroom 8 of this Court’s San
+ 3
+           José courthouse, located at 280 S. 1st Street, San José, CA 95113.
+ 4
+     Dated: June 3, 2026
+ 5
+     /s/ William H. Newman                                     /s/ Mack Wilding
+ 6
+
+ 7
+     William H. Newman                                       Mack Wilding
+ 8   Appearing pro hac vice                                  Pro hac vice forthcoming
+     Tara Q. Higgins                                         165 S. Union Blvd., Suite 901
+ 9   Appearing pro hac vice                                  Lakewood, CO 80228
+     33 Nassau Avenue, Second Floor                          T: (720) 663-0558
+10   Brooklyn, New York 11222                                mack@therodmanlawgroup.com
+     T: (718) 218-3360
+11   will@willnewmanlawyer.com                               Counsel for Defendant
+     tara@willnewmanlawyer.com                               Maxim Ermilov
+12
+     Counsel for Named Plaintiffs
+13
+
+14
+     Dated: June 5, 2026                            SO ORDERED:
+15
+
+16
+
+17
+                                                    Hon. P. Casey Pitts
+18                                                  United States District Judge
+19
+
+20
+
+21
+
+22
+
+23
+
+24
+
+25
+
+26
+
+27
+
+28
+
+
+
+                                                    3
+
