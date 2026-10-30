@@ -25,3 +25,4 @@ Thumbs.db
 
 # CRE CLI build artifacts
 .cre_build_tmp.js
+binary.wasm.br.b64
