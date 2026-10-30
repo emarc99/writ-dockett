@@ -1,0 +1,9 @@
+{
+    "chain":  "ethereum-testnet-sepolia",
+    "chainId":  11155111,
+    "orderRegistry":  "0xC0efC2d0B41Bbcb9d26C7F4F32678a247E15a202",
+    "writToken":  "0x4d0DF1DF351d3035A9AEa82cc34Fc4d4C5e30e5f",
+    "forwarder":  "0x15fC6ae953E024d975e77382eEeC56A9101f9F88",
+    "deployer":  "0xb8AD2787f447e04E8D66D7e888Dd48fB68DdedB7",
+    "deployedAt":  "2026-10-30T16:41:50.6022576Z"
+}
