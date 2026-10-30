@@ -3,7 +3,8 @@ import { z } from 'zod'
 export const configSchema = z.object({
 	chainSelectorName: z.string(),
 	registryAddress: z.string(),
-	gasLimit: z.string().default('3000000'),
+	/** Attesting a 6-wallet order costs ~2.8M gas on Sepolia; CRE caps a write at 10M. */
+	gasLimit: z.string().default('5000000'),
 	courtListenerBaseUrl: z.string().default('https://www.courtlistener.com/api/rest/v4'),
 	/** Tried in order; the next model is used only when one is overloaded (429/5xx) or times out. */
 	geminiModels: z.array(z.string()).min(1).max(3).default(['gemini-3.5-flash', 'gemini-3.1-flash-lite']),
