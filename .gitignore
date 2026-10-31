@@ -7,6 +7,13 @@
 node_modules/
 dist/
 .next/
+.vercel/
+web/next-env.d.ts
+*.tsbuildinfo
+
+# copied in by web/scripts/sync.mjs
+web/lib/deployment.json
+web/public/fixtures/
 *.wasm
 
 # foundry

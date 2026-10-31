@@ -3,9 +3,23 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "bun server.ts"
+    "sync": "node scripts/sync.mjs",
+    "dev": "node scripts/sync.mjs && next dev -p 8787",
+    "build": "node scripts/sync.mjs && next build",
+    "start": "next start -p 8787",
+    "typecheck": "node scripts/sync.mjs && tsc --noEmit",
+    "trigger": "bun scripts/trigger.ts"
   },
   "dependencies": {
+    "next": "^16.4.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "viem": "2.34.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "~5.9"
   }
 }

@@ -152,7 +152,14 @@ input, textarea {
 }
 input:focus, textarea:focus { border-color: var(--brand); }
 textarea { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 12.5px; resize: vertical; }
-.drop input[type='file'] { padding: 12px; border: 2px dashed #c7d2fe; background: var(--brand-soft); cursor: pointer; }
+.dropzone input[type='file'] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.drop-box {
+	display: block; padding: 16px; border: 2px dashed #c7d2fe; border-radius: 10px; background: var(--brand-soft);
+	color: #4338ca; font-weight: 600; cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease;
+}
+.drop-box:hover, .dropzone input:focus-visible + .drop-box { border-color: var(--brand); background: #e0e7ff; }
+.drop-box.has-file { border-style: solid; border-color: #a5b4fc; color: var(--ink); }
+.probe-out { margin-top: 10px; }
 .sha { margin-top: 8px; font-size: 13px; color: var(--muted); word-break: break-all; }
 .sha code { color: var(--brand); font-weight: 600; }
 .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
