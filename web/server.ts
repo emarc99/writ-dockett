@@ -219,7 +219,9 @@ Bun.serve({
 		}
 
 		const file = Bun.file(join(PUBLIC, url.pathname === '/' ? 'index.html' : url.pathname.replace(/^\/+/, '')))
-		return (await file.exists()) && !url.pathname.includes('..') ? new Response(file) : new Response('not found', { status: 404 })
+		return (await file.exists()) && !url.pathname.includes('..')
+			? new Response(file, { headers: { 'Cache-Control': 'no-store' } })
+			: new Response('not found', { status: 404 })
 	},
 })
 
