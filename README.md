@@ -174,7 +174,7 @@ Signed-result tx: [`0xa5ba48c8…`](https://sepolia.etherscan.io/tx/0xa5ba48c83a
 
 | Identity | How it enters | Where it is checked |
 | --- | --- | --- |
-| **Who may submit** (the issuer's compliance desk) | The HTTP trigger request is signed by an EVM key. `httpAuthorizedKey` in the config becomes the trigger's `authorizedKeys`, so the DON drops unsigned or foreign requests. The signer arrives as `payload.key` and is logged. The same key is required to request an on-demand sweep. | CRE gateway / trigger, before any code runs |
+| **Who may submit** (the issuer's compliance desk) | The HTTP trigger request is signed by an EVM key. `httpAuthorizedKey` in the config becomes the trigger's `authorizedKeys`, so the DON drops unsigned or foreign requests. The signer arrives as `payload.key` and is logged. The same key is required to request an on-demand sweep. In the demo UI the issuer can **Connect wallet** and sign in MetaMask; the gateway refuses any other signer (`Auth failure: signer '0x…' is not authorized for workflow …`). | CRE gateway / trigger, before any code runs |
 | **Which court document** | The payload carries `court`, `docketNumber`, `entryNumber` and the PDF's SHA-1. The PDF itself never leaves the browser. | `verify.ts` checks each against CourtListener; order id = `keccak256(abi.encode(court, docketNumber, entry))` |
 | **Which wallets** | A claimed list in the payload | Each wallet must appear verbatim in the court's official text **and** be named by Gemini as restrained |
 | **API credentials** | `COURTLISTENER_TOKEN` and `GEMINI_API_KEY` are CRE secrets (`secrets.yaml`; `.env` in simulation, the Vault DON when deployed), fetched with `runtime.getSecret` inside handlers | Never in config, payloads, logs or reports |
@@ -207,6 +207,7 @@ Signed-result tx: [`0xa5ba48c8…`](https://sepolia.etherscan.io/tx/0xa5ba48c83a
 | [`contracts/src/interfaces/CREReceiver.sol`](contracts/src/interfaces/CREReceiver.sol) | `IReceiver.onReport`: forwarder-only, optional workflow id/owner pinning |
 | [`contracts/src/interfaces/IReceiver.sol`](contracts/src/interfaces/IReceiver.sol) | Chainlink receiver interface |
 | [`contracts/src/OrderRegistry.sol`](contracts/src/OrderRegistry.sol) | Decodes `Attest` / `Reject` / `UpdateStatus` reports; freeze and expiry logic |
+| [`web/src/rpc.ts`](web/src/rpc.ts) | CRE gateway request format shared by server and browser: sorted-key JSON-RPC body, SHA-256 digest, EIP-191 JWT |
 | [`web/gateway.ts`](web/gateway.ts) | Fires the deployed HTTP trigger through the CRE gateway with an ETH-signed JWT (`workflows.execute`) |
 | [`web/server.ts`](web/server.ts) | Demo bridge: verify and sweep go to the deployed workflow through the gateway, and it follows them with `cre execution` |
 | [`scripts/fresh-demo.ps1`](scripts/fresh-demo.ps1) | Resets the live demo: new registry + token behind the `KeystoneForwarder`, `cre workflow deploy`, `pinWorkflow` |
@@ -261,7 +262,7 @@ Demo UI (local only):
 cd web; bun install; bun server.ts    # http://localhost:8787
 ```
 
-Use **Load genuine ECF 18** or **Load forged ECF 18**, then **Verify with Chainlink CRE**. When `deployments/sepolia.json` has a `workflowId`, the server sends the submission to the deployed workflow and streams one DON node's logs into the checklist. Without one, it falls back to `cre workflow simulate --broadcast`. Try a transfer from a frozen wallet. About 15 minutes later, once the verification is finalized, press **Run sweep now**: the DON finds ECF 38 and lifts the freeze. To start over, run `./scripts/fresh-demo.ps1` and restart the server.
+Use **Load genuine ECF 18** or **Load forged ECF 18**, then **Verify with Chainlink CRE**. When `deployments/sepolia.json` has a `workflowId`, the server sends the submission to the deployed workflow and streams one DON node's logs into the checklist. Requests are signed with the server's key unless you **Connect wallet**. Then MetaMask signs them, and the server only forwards them. Import the `httpAuthorizedKey` account into MetaMask, because any other account is refused by CRE. Without one, it falls back to `cre workflow simulate --broadcast`. Try a transfer from a frozen wallet. About 15 minutes later, once the verification is finalized, press **Run sweep now**: the DON finds ECF 38 and lifts the freeze. To start over, run `./scripts/fresh-demo.ps1` and restart the server.
 
 ### Going to production
 
