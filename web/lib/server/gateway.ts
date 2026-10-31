@@ -18,11 +18,17 @@ export interface GatewayResult {
 
 /** POSTs an already-signed request; `body` must be the exact string the JWT digest covers. */
 export async function sendSigned(body: string, jwt: string): Promise<GatewayResult> {
-	const res = await fetch(GATEWAY, {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
-		body,
-	})
+	const post = () => fetch(GATEWAY, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` }, body })
+	let res: Response | undefined
+	for (let attempt = 1; !res; attempt++) {
+		try {
+			res = await post()
+		} catch (err) {
+			// Network-level failure (DNS, reset): the request never reached the gateway, so resending is safe.
+			if (attempt >= 3) throw new Error(`could not reach the CRE gateway: ${(err as Error).message}`)
+			await new Promise((r) => setTimeout(r, 2000 * attempt))
+		}
+	}
 	const raw = (await res.json().catch(() => ({ httpStatus: res.status }))) as {
 		result?: { workflow_execution_id?: string; status?: string }
 		error?: { message?: string }
