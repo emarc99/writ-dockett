@@ -4,7 +4,8 @@
  * Deployed (deployments/sepolia.json has a workflowId): POST /api/verify and POST /api/sweep sign
  * a JSON-RPC request with the HTTP trigger's authorized key, send it to the CRE gateway, wait for
  * the DON execution and stream one node's logs back. The sweep request is `{"action":"sweep"}`;
- * the DON also runs the sweep on its cron schedule.
+ * the DON also runs the sweep on its cron schedule. POST /api/execute does the same for a request
+ * the browser wallet already signed, forwarding it unchanged.
  *
  * Simulation (no workflowId): both endpoints run `cre workflow simulate --broadcast`.
  *
@@ -14,7 +15,8 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Reason } from '../workflows/writ/legal'
-import { signerKeyFromEnv, triggerDeployed } from './gateway'
+import { sendSigned, signerKeyFromEnv, triggerDeployed, type GatewayResult } from './gateway'
+import { jwtIssuer } from './src/rpc'
 
 const ROOT = resolve(import.meta.dir, '..')
 const PUBLIC = join(import.meta.dir, 'public')
@@ -95,11 +97,28 @@ function resultFromLogs(lines: string[]): Record<string, unknown> | undefined {
 	return undefined
 }
 
-function runDeployed(input: unknown, kind: 'verify' | 'sweep'): Response {
-	return streamRun(async (write) => {
+type Kind = 'verify' | 'sweep'
+
+/** Signs with the server's key from .env. */
+function runDeployed(input: unknown, kind: Kind): Response {
+	return followExecution(kind, async (write) => {
 		const key = await signerKeyFromEnv(ROOT)
-		write(`[writ] signing workflows.execute for ${deployment.workflowName} (${deployment.workflowId.slice(0, 10)}…) as ${privateKeyToAccount(key).address}`)
-		const sent = await triggerDeployed(deployment.workflowId, input, key)
+		write(`[writ] signing workflows.execute for ${deployment.workflowName} (${deployment.workflowId.slice(0, 10)}…) with the server key ${privateKeyToAccount(key).address}`)
+		return triggerDeployed(deployment.workflowId, input, key)
+	})
+}
+
+/** Forwards a request the browser wallet already signed; the gateway checks the signature. */
+function runPresigned(body: string, jwt: string, kind: Kind): Response {
+	return followExecution(kind, async (write) => {
+		write(`[writ] workflows.execute for ${deployment.workflowName} (${deployment.workflowId.slice(0, 10)}…) signed in the browser by ${jwtIssuer(jwt) ?? 'unknown'}`)
+		return sendSigned(body, jwt)
+	})
+}
+
+function followExecution(kind: Kind, send: (write: (line: string) => void) => Promise<GatewayResult>): Response {
+	return streamRun(async (write) => {
+		const sent = await send(write)
 		if (!sent.executionId) throw new Error(`gateway refused the request: ${sent.error ?? JSON.stringify(sent.raw)}`)
 		write(`[writ] CRE gateway ${sent.status}: execution ${sent.executionId}`)
 
@@ -151,7 +170,7 @@ Bun.serve({
 		const url = new URL(req.url)
 
 		if (url.pathname === '/api/config') return Response.json(deployment)
-		if (url.pathname === '/app.js') return new Response(appJs, { headers: { 'Content-Type': 'text/javascript' } })
+		if (url.pathname === '/app.js') return new Response(appJs, { headers: { 'Content-Type': 'text/javascript', 'Cache-Control': 'no-store' } })
 
 		if (url.pathname.startsWith('/fixtures/')) {
 			const rel = FIXTURES[url.pathname.slice('/fixtures/'.length)]
@@ -178,6 +197,25 @@ Bun.serve({
 
 		if (url.pathname === '/api/sweep' && req.method === 'POST') {
 			return DEPLOYED ? runDeployed({ action: 'sweep' }, 'sweep') : simulate(1)
+		}
+
+		if (url.pathname === '/api/execute' && req.method === 'POST') {
+			if (!DEPLOYED) return new Response('wallet signing needs a deployed workflow (workflowId in deployments/sepolia.json)\n', { status: 400 })
+			const b = await req.json().catch(() => null)
+			let rpc: any
+			try {
+				rpc = JSON.parse(b?.body)
+			} catch {
+				return new Response('body must be the signed JSON-RPC request string\n', { status: 400 })
+			}
+			if (typeof b?.jwt !== 'string' || rpc?.method !== 'workflows.execute' || rpc?.params?.workflow?.workflowID !== deployment.workflowId) {
+				return new Response('request must be workflows.execute for this deployment, with a jwt\n', { status: 400 })
+			}
+			const input = rpc.params.input
+			const kind: Kind = input?.action === 'sweep' ? 'sweep' : 'verify'
+			const err = kind === 'sweep' ? (Object.keys(input).length === 1 ? undefined : 'sweep takes no other fields') : validSubmission(input)
+			if (err) return new Response(`${err}\n`, { status: 400 })
+			return runPresigned(b.body, b.jwt, kind)
 		}
 
 		const file = Bun.file(join(PUBLIC, url.pathname === '/' ? 'index.html' : url.pathname.replace(/^\/+/, '')))
