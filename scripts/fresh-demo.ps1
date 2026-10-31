@@ -63,4 +63,4 @@ $deployment = [ordered]@{
     fromBlock           = $fromBlock
 }
 $deployment | ConvertTo-Json | Set-Content $depPath
-Write-Host "wrote $depPath; restart web/server.ts to pick it up"
+Write-Host "wrote $depPath; restart the web app (cd web; bun run dev) to pick it up"

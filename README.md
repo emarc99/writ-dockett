@@ -126,10 +126,10 @@ Contracts behind the DON run above:
 | Triggers | HTTP (verify, or `{"action":"sweep"}` for an on-demand sweep) and cron `0 0 */6 * * *` (sweep every 6 hours, UTC) |
 | Registry pinned to the workflow (`pinWorkflow(owner, id)`) | [`0x96a1e7d9…`](https://sepolia.etherscan.io/tx/0x96a1e7d93d86e8bdcadbfcd993e803353215384606b3daea051d9a07c5aefead) |
 
-`OrderRegistry` accepts reports only from the `KeystoneForwarder`, and only if the report metadata carries the pinned workflow ID and owner. The first deployment did the same with the earlier registry: forwarder switch [`0x9a8d6013…`](https://sepolia.etherscan.io/tx/0x9a8d60136a41a710f70b41a02ed4b6511b3f440dd9ae0800ad30ca1c33a8e056), pin [`0x023ad6ed…`](https://sepolia.etherscan.io/tx/0x023ad6ed2aea5bbbd1f41236f148b126002674a278e561ef7f160ae39f985670). Below, the forged order is submitted to the deployed workflow through the CRE gateway with a signed request ([`web/gateway.ts`](web/gateway.ts)):
+`OrderRegistry` accepts reports only from the `KeystoneForwarder`, and only if the report metadata carries the pinned workflow ID and owner. The first deployment did the same with the earlier registry: forwarder switch [`0x9a8d6013…`](https://sepolia.etherscan.io/tx/0x9a8d60136a41a710f70b41a02ed4b6511b3f440dd9ae0800ad30ca1c33a8e056), pin [`0x023ad6ed…`](https://sepolia.etherscan.io/tx/0x023ad6ed2aea5bbbd1f41236f148b126002674a278e561ef7f160ae39f985670). Below, the forged order is submitted to the deployed workflow through the CRE gateway with a signed request ([`web/lib/server/gateway.ts`](web/lib/server/gateway.ts)):
 
 ```text
-$ bun web/gateway.ts payloads/forged.json
+$ cd web; bun scripts/trigger.ts ../payloads/forged.json
 { "executionId": "0xa03c402f9c8a86d7b46cbcfdca7c132ed317d4fa0b4e2a0c8ebc896d84370fc8", "status": "ACCEPTED" }
 
 $ cre execution logs a03c402f…  (10 DON nodes; Node 1 shown)
@@ -207,9 +207,10 @@ Signed-result tx: [`0xa5ba48c8…`](https://sepolia.etherscan.io/tx/0xa5ba48c83a
 | [`contracts/src/interfaces/CREReceiver.sol`](contracts/src/interfaces/CREReceiver.sol) | `IReceiver.onReport`: forwarder-only, optional workflow id/owner pinning |
 | [`contracts/src/interfaces/IReceiver.sol`](contracts/src/interfaces/IReceiver.sol) | Chainlink receiver interface |
 | [`contracts/src/OrderRegistry.sol`](contracts/src/OrderRegistry.sol) | Decodes `Attest` / `Reject` / `UpdateStatus` reports; freeze and expiry logic |
-| [`web/src/rpc.ts`](web/src/rpc.ts) | CRE gateway request format shared by server and browser: sorted-key JSON-RPC body, SHA-256 digest, EIP-191 JWT |
-| [`web/gateway.ts`](web/gateway.ts) | Fires the deployed HTTP trigger through the CRE gateway with an ETH-signed JWT (`workflows.execute`) |
-| [`web/server.ts`](web/server.ts) | Demo bridge: verify and sweep go to the deployed workflow through the gateway, and it follows them with `cre execution` |
+| [`web/lib/rpc.ts`](web/lib/rpc.ts) | CRE gateway request format shared by server and browser: sorted-key JSON-RPC body, SHA-256 digest, EIP-191 JWT |
+| [`web/lib/server/gateway.ts`](web/lib/server/gateway.ts) | Fires the deployed HTTP trigger through the CRE gateway with an ETH-signed JWT (`workflows.execute`) |
+| [`web/lib/server/cre.ts`](web/lib/server/cre.ts) | Follows a DON execution and streams its node logs, through the CRE platform API (`api.cre.chain.link/graphql`, `CRE_API_KEY`) or the local `cre` CLI |
+| [`web/app/api/`](web/app/api) | Next.js routes: `verify` and `sweep` (server-signed), `execute` (forwards a wallet-signed request), `status` |
 | [`scripts/fresh-demo.ps1`](scripts/fresh-demo.ps1) | Resets the live demo: new registry + token behind the `KeystoneForwarder`, `cre workflow deploy`, `pinWorkflow` |
 
 Other files: `legal.ts` (deterministic Rule 65 logic, no Chainlink calls), `contracts/src/WritToken.sol` (an ERC-20 that consults the registry), the tests, and `scripts/`.
@@ -252,17 +253,24 @@ cre secrets create secrets.yaml --target staging-settings    # COURTLISTENER_TOK
 cre workflow deploy workflows/writ --target staging-settings # prints the workflow ID
 # on OrderRegistry (owner): setForwarder(0xF8344CFd5c43616a4366C34E3EEE75af79a74482), pinWorkflow(owner, workflowId)
 # put the ID in deployments/sepolia.json, then:
-bun web/gateway.ts payloads/forged.json                      # signs with CRE_ETH_PRIVATE_KEY (= httpAuthorizedKey)
+cd web; bun run sync; bun scripts/trigger.ts ../payloads/forged.json; cd ..   # signs with CRE_ETH_PRIVATE_KEY (= httpAuthorizedKey)
 cre execution list writ-staging; cre execution logs <execution id without 0x>
 ```
 
-Demo UI (local only):
+Demo UI (Next.js, in `web/`):
 
 ```powershell
-cd web; bun install; bun server.ts    # http://localhost:8787
+cd web; bun install; bun run dev    # http://localhost:8787, reads ../.env
 ```
 
-The UI has four pages: **Overview** (what Writ does, live stats, contracts), **Verify an order**, **On-chain orders** (registry state, wallet probe, rejections) and **Docket sweep**. On **Verify an order**, use **Load genuine ECF 18** or **Load forged ECF 18**, then **Verify with Chainlink CRE**; a stepper tracks the run from signature to gateway to DON to on-chain report. When `deployments/sepolia.json` has a `workflowId`, the server sends the submission to the deployed workflow and streams one DON node's logs into the checklist. Requests are signed with the server's key unless you **Connect wallet**. Then MetaMask signs them, and the server only forwards them. Import the `httpAuthorizedKey` account into MetaMask, because any other account is refused by CRE. Without one, it falls back to `cre workflow simulate --broadcast`. Try a transfer from a frozen wallet. About 15 minutes later, once the verification is finalized, press **Run sweep now**: the DON finds ECF 38 and lifts the freeze. To start over, run `./scripts/fresh-demo.ps1` and restart the server.
+Deploy it to Vercel with **Root Directory** `web` (the build copies `deployments/sepolia.json` and the demo PDFs in from the repo root). Environment variables:
+
+| Variable | Purpose |
+| --- | --- |
+| `CRE_API_KEY` | Lets the server follow DON executions and stream node logs (create one at [app.chain.link](https://app.chain.link), Account Settings). Without it the UI still triggers runs but cannot show the checks. |
+| `CRE_ETH_PRIVATE_KEY` | Optional. The issuer key, so visitors can run verify and sweep without a wallet. Leave it unset on a public deployment: then only someone who connects the issuer wallet can trigger the workflow. |
+
+The UI has four pages: **Overview** (what Writ does, live stats, contracts), **Verify an order**, **On-chain orders** (registry state, wallet probe, rejections) and **Docket sweep**. On **Verify an order**, use **Load genuine ECF 18** or **Load forged ECF 18**, then **Verify with Chainlink CRE**; a stepper tracks the run from signature to gateway to DON to on-chain report. The server sends the submission to the deployed workflow (the `workflowId` in `deployments/sepolia.json`) and streams one DON node's logs into the checklist; a run keeps going while you switch pages. Requests are signed with the server's key unless you **Connect wallet**. Then MetaMask signs them, and the server only forwards them. Import the `httpAuthorizedKey` account into MetaMask, because any other account is refused by CRE. Try a transfer from a frozen wallet. About 15 minutes later, once the verification is finalized, press **Run sweep now**: the DON finds ECF 38 and lifts the freeze. To start over, run `./scripts/fresh-demo.ps1` and restart the server.
 
 ### Going to production
 
