@@ -20,6 +20,11 @@ header {
 }
 h1 { font-family: Georgia, 'Times New Roman', serif; margin: 0; font-size: 30px; letter-spacing: 0.5px; }
 .brand p { margin: 4px 0 0; color: var(--muted); }
+header { flex-wrap: wrap; gap: 12px; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+.header-right button { white-space: nowrap; }
+.signer { font-size: 13px; color: var(--muted); text-align: right; }
+.signer .free, .signer .frozen { display: block; font-size: 12px; font-weight: 600; }
 .chain { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
 main {
 	display: grid; gap: 20px; padding: 24px 32px;

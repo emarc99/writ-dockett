@@ -1,5 +1,6 @@
-import { createPublicClient, formatUnits, http, parseAbi, parseAbiItem } from 'viem'
+import { createPublicClient, formatUnits, getAddress, http, parseAbi, parseAbiItem, toHex } from 'viem'
 import { sepolia } from 'viem/chains'
+import { executeBody, jwtSigningInput, jwtWithSignature } from './rpc'
 
 const RPC = 'https://ethereum-sepolia-rpc.publicnode.com'
 const ETHERSCAN = 'https://sepolia.etherscan.io'
@@ -45,6 +46,57 @@ const day = (t) => new Date(Number(t) * 1000).toISOString().slice(0, 10)
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
 
 $('contracts').innerHTML = `OrderRegistry ${addrLink(cfg.orderRegistry)} · Writ USD ${addrLink(cfg.writToken)} · CRE forwarder ${addrLink(cfg.forwarder)}`
+
+// ---------------------------------------------------------------- issuer wallet
+
+let account = null
+
+function renderWallet() {
+	const btn = $('connect-btn')
+	if (!cfg.workflowId) {
+		btn.hidden = true
+		return
+	}
+	if (!account) {
+		btn.textContent = 'Connect wallet'
+		$('signer').textContent = 'Signer: server key'
+		return
+	}
+	const ok = account.toLowerCase() === cfg.httpAuthorizedKey?.toLowerCase()
+	btn.textContent = 'Disconnect'
+	$('signer').innerHTML = `Signer ${addrLink(account)}<span class="${ok ? 'free' : 'frozen'}">${ok ? 'authorized issuer key' : 'not the authorized key: CRE will refuse'}</span>`
+}
+
+$('connect-btn').addEventListener('click', async () => {
+	if (account) {
+		account = null
+		return renderWallet()
+	}
+	if (!window.ethereum) return alert('No browser wallet found. Install MetaMask, or stay disconnected to sign with the server key.')
+	try {
+		const [a] = await window.ethereum.request({ method: 'eth_requestAccounts' })
+		account = a ? getAddress(a) : null
+	} catch (err) {
+		alert(err.message ?? err)
+	}
+	renderWallet()
+})
+
+window.ethereum?.on?.('accountsChanged', (accounts) => {
+	if (!account) return
+	account = accounts[0] ? getAddress(accounts[0]) : null
+	renderWallet()
+})
+
+renderWallet()
+
+/** Builds the gateway request in the browser and has the connected wallet sign it (EIP-191). */
+async function walletSigned(input) {
+	const body = executeBody(cfg.workflowId, input)
+	const message = await jwtSigningInput(body, account)
+	const signature = await window.ethereum.request({ method: 'personal_sign', params: [toHex(message), account] })
+	return { body, jwt: jwtWithSignature(message, signature) }
+}
 
 // ---------------------------------------------------------------- submission
 
@@ -124,17 +176,24 @@ form.addEventListener('submit', async (e) => {
 	const btn = $('verify-btn')
 	btn.disabled = true
 	result.className = 'result run'
-	result.textContent = 'Running the CRE workflow: CourtListener → Gemini → signed report → Sepolia…'
-	const body = {
-		court: form.court.value.trim(),
+	const submission = {
+		court: form.court.value.trim().toLowerCase(),
 		docketNumber: form.docketNumber.value.trim(),
 		entryNumber: Number(form.entryNumber.value),
 		documentSha1: sha1,
-		filedDate: form.filedDate.value || undefined,
 		wallets: form.wallets.value.split(/\s+/).map((w) => w.trim()).filter(Boolean),
+		...(form.filedDate.value ? { filedDate: form.filedDate.value } : {}),
 	}
 	try {
-		await runWorkflow('/api/verify', body, {
+		let url = '/api/verify'
+		let body = submission
+		if (account) {
+			result.textContent = 'Sign the request in your wallet…'
+			url = '/api/execute'
+			body = await walletSigned(submission)
+		}
+		result.textContent = 'Running the CRE workflow: CourtListener → Gemini → signed report → Sepolia…'
+		await runWorkflow(url, body, {
 			log: $('log'),
 			checks: $('checks'),
 			onResult: (r) => {
@@ -267,7 +326,9 @@ $('sweep-btn').addEventListener('click', async () => {
 	const btn = $('sweep-btn')
 	btn.disabled = true
 	try {
-		await runWorkflow('/api/sweep', null, { log: $('sweep-log'), checks: $('sweep-checks'), onResult: () => {} })
+		const opts = { log: $('sweep-log'), checks: $('sweep-checks'), onResult: () => {} }
+		if (account) await runWorkflow('/api/execute', await walletSigned({ action: 'sweep' }), opts)
+		else await runWorkflow('/api/sweep', null, opts)
 	} catch (err) {
 		$('sweep-log').textContent += String(err.message ?? err)
 	} finally {
